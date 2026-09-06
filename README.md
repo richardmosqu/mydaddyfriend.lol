@@ -45,40 +45,14 @@ así que siguen ahí cuando volvés. `🗑️ clear` los limpia.
 - Los colores se pueden pisar a mano desde la tira de swatches. Lo elegido a mano gana
   sobre lo muestreado y queda guardado; el pelo elegido a mano no se oscurece (si querés
   rubio platino o rosa, queda así).
-- El "yes daddy" lo dice la `SpeechSynthesis` del navegador, pero con tres cosas encima
-  para que no suene a lector de PDF:
-  1. **Elige una voz femenina en inglés** en vez de la de por defecto: puntúa las voces
-     del sistema contra una lista de nombres femeninos conocidos (Samantha, Zira, Ava,
-     Karen, Google US English…) y penaliza los masculinos. En el panel hay un `select`
-     para elegir otra, porque cuáles hay depende del sistema operativo.
-  2. **Cada frase tiene una versión hablada**: en el globo se lee `YES DADDY` pero se
-     pronuncia `yesss... daddy`. Las comas y los puntos suspensivos son lo que le da
-     entonación. El pitch varía poco (1.05–1.35) a propósito: estirarlo mucho es
-     justamente lo que la hacía sonar a robot.
-     Nunca se llama a `cancel()` y `speak()` en el mismo tick: Chrome deja el motor de
-     voz colgado para el resto de la sesión y no vuelve a hablar nunca. Si ya hay una
-     frase sonando se la deja terminar, y el latigazo suena igual en cada click.
-  3. **Un gemido sintetizado por debajo**, con formantes: un oscilador diente de sierra
-     con vibrato pasado por tres pasa-banda que se abren de "mm" a "ah", más un poco de
-     ruido de aire. Eso es lo que le pone cuerpo humano.
-- En celular el `AudioContext` arranca suspendido y `resume()` es asíncrono: si se
-  programan los sonidos antes de que arranque quedan agendados en un tiempo que ya pasó
-  y no suenan nunca. Por eso todo el audio pasa por un `withAudio()` que espera a que el
-  contexto esté corriendo. El golpe se dispara en `pointerdown`, no en `click`, que en
-  celular llega 100-300 ms más tarde.
-- `styles.css` y `app.js` se piden con `?v=N`. Sin eso el navegador se queda con el CSS
-  viejo después de un deploy y la página se rompe entera (los `display:none` de poses y
-  accesorios desaparecen y se dibuja todo superpuesto). **Al cambiar CSS o JS hay que
-  subir ese número en `index.html`.**
-- El cursor es un látigo que sigue al mouse y chasquea al hacer click. En celular no hay
-  cursor, así que la animación aparece en el punto donde tocaste y se va sola.
-- **Poses**: las cuatro están dibujadas en SVG dentro del mismo `viewBox`, y solo se muestra
-  una por vez. La caja de la cara se reposiciona por CSS en cada pose, así que la foto
-  recortada acompaña a la cabeza sin recalcular nada en JS.
-- **Accesorios**: los que van sobre la cara (antifaz y mordaza) se posicionan con los mismos
-  ojos y boca que detectó face-api, así que calzan en cualquier cara. Los del cuerpo (collar,
-  esposas, cuerda) se dibujan una sola vez en `<defs>` y cada pose los coloca con un
-  `transform`, en vez de redibujarlos cuatro veces.
+- **Las frases son archivos de audio** en `sounds/`, generados con `pico2wave` y
+  reproducidos por el mismo `AudioContext` que el latigazo. Antes esto lo hacía la
+  `SpeechSynthesis` del navegador y era imposible de sostener: en varios navegadores
+  emite la locución y no suena nada, sin disparar `start` ni `error`. Ahora la voz del
+  navegador quedó sólo como respaldo por si falta la carpeta, y sigue habiendo un
+  selector en el panel para volver a ella. Ver `sounds/README.md` para reemplazarlas
+  por grabaciones propias.
+- El gemido con formantes quedó como un respiro corto (180-240 ms) antes de la frase.
 - El latigazo también es Web Audio puro: ruido blanco por un pasa-banda que barre de
   420 Hz a 3.8 kHz (el silbido), un chasquido filtrado en agudos y un golpe grave de
   170 a 55 Hz. No hay ningún archivo de audio en todo el proyecto.

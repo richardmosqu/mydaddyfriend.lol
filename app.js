@@ -577,8 +577,9 @@
   function moan() {
     if (!el.stage.classList.contains('has-face')) { el.file.click(); return; }
 
-    const phrase = pick(PHRASES);
-    el.bubble.textContent = phrase.t;
+    const clip = useClips() ? pick(voiceClips) : null;
+    const phrase = clip ? null : pick(PHRASES);
+    el.bubble.textContent = clip ? clip.text : phrase.t;
     el.bubble.style.setProperty('--rot', rand(-8, 8).toFixed(1) + 'deg');
     el.bubble.classList.add('show');
     el.stage.style.setProperty('--open', rand(0.82, 1.25).toFixed(2));
@@ -597,7 +598,8 @@
     state.count++;
     paintCount();
     save();
-    speak(phrase);   // primero: el motor de voz es lo que más tarda en arrancar
+    if (clip) playVoice(clip);
+    else speak(phrase);   // respaldo: el motor del navegador es lo que más tarda
     whipCrack();
     gasp();
     burst();
@@ -658,12 +660,18 @@
   function fillVoiceSelect() {
     if (!el.voiceSel) return;
     el.voiceSel.textContent = '';
-    const auto = document.createElement('option');
-    auto.value = '';
-    auto.textContent = voices.length
-      ? 'auto — ' + (autoVoice ? autoVoice.name : 'default')
-      : 'no voices on this device';
-    el.voiceSel.appendChild(auto);
+    const add = (value, label) => {
+      const o = document.createElement('option');
+      o.value = value;
+      o.textContent = label;
+      el.voiceSel.appendChild(o);
+    };
+    add('', voiceClips.length
+      ? `recorded voice (${voiceClips.length} clips)`
+      : (voices.length ? 'auto — ' + (autoVoice ? autoVoice.name : 'default') : 'no voices on this device'));
+    if (voiceClips.length) {
+      add('tts', 'browser voice — ' + (autoVoice ? autoVoice.name : (voices.length ? 'default' : 'none here')));
+    }
     for (const v of voices) {
       const o = document.createElement('option');
       o.value = v.voiceURI;
@@ -793,7 +801,7 @@
     if (!state.sound) return;
     withAudio((a) => {
       // arranca recién pasado el chasquido: si se pisan, no se oye ninguno de los dos
-      const t0 = a.currentTime + CRACK_AT + 0.06, dur = rand(0.26, 0.34);
+      const t0 = a.currentTime + CRACK_AT + 0.05, dur = rand(0.18, 0.24);
       const f0 = rand(196, 248);   // rango de voz femenina
 
       const osc = a.createOscillator();
@@ -837,6 +845,57 @@
 
       air.start(t0); osc.start(t0); lfo.start(t0);
       air.stop(t0 + dur + 0.05); osc.stop(t0 + dur + 0.05); lfo.stop(t0 + dur + 0.05);
+    });
+  }
+
+  // speechSynthesis resultó imposible de verificar: en varios navegadores emite la
+  // locución y no suena nada, sin disparar start ni error. Las frases ahora son
+  // archivos que van por el mismo AudioContext que el látigo, que sí suena en todos
+  // lados. La voz del navegador queda sólo como respaldo.
+  let voiceClips = [];
+  let clipsPromise = null;
+  let voiceNode = null;
+
+  function loadVoiceClips() {
+    if (clipsPromise) return clipsPromise;
+    clipsPromise = (async () => {
+      let man;
+      try {
+        const r = await fetch('sounds/voice.json');
+        if (!r.ok) return;
+        man = await r.json();
+      } catch (e) { return; }          // sin carpeta o abierto como file://
+
+      let a;
+      try { a = ac(); } catch (e) { return; }
+      const list = (man && man.clips) || [];
+      const loaded = await Promise.all(list.map(async (c) => {
+        try {
+          const res = await fetch('sounds/' + encodeURIComponent(c.file));
+          if (!res.ok) return null;
+          const buf = await a.decodeAudioData(await res.arrayBuffer());
+          return { text: String(c.text || c.file).toUpperCase(), buffer: buf };
+        } catch (e) { return null; }
+      }));
+      voiceClips = loaded.filter(Boolean);
+      if (voiceClips.length) fillVoiceSelect();
+    })();
+    return clipsPromise;
+  }
+
+  const useClips = () => voiceClips.length > 0 && state.voice !== 'tts';
+
+  function playVoice(clip) {
+    if (!state.sound) return;
+    withAudio((a) => {
+      if (voiceNode) { try { voiceNode.stop(); } catch (e) { /* ya terminó */ } }
+      const src = a.createBufferSource();
+      src.buffer = clip.buffer;
+      const g = a.createGain();
+      g.gain.value = 0.95;
+      src.connect(g).connect(a.destination);
+      src.start(a.currentTime + CRACK_AT + 0.13);   // entra después del chasquido
+      voiceNode = src;
     });
   }
 
@@ -911,6 +970,7 @@
   // primer gesto: se destraba el audio
   addEventListener('pointerdown', () => {
     try { ac().resume(); } catch (e) { /* nada */ }
+    loadVoiceClips();
   }, { once: true, capture: true });
 
   el.pick.addEventListener('click', () => el.file.click());
@@ -1131,6 +1191,7 @@
   };
   if (window.requestIdleCallback) requestIdleCallback(warm, { timeout: 6000 });
   else setTimeout(warm, 2500);
+  loadVoiceClips();
 
   const hits = $('#hits');
   if (hits) hits.textContent = String(1 + ((Date.now() / 8.64e7) | 0) % 89);
