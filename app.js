@@ -1209,7 +1209,7 @@
         const src = a.createBufferSource();
         src.buffer = songBuffer;
         const g = a.createGain();
-        g.gain.value = 0.75;
+        g.gain.value = 0.62;      // de fondo: si va más alto tapa las frases al pegarle
         src.connect(g).connect(a.destination);
         src.start();
         songNode = src;
