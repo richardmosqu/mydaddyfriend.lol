@@ -481,34 +481,67 @@ body{
 .btn--money:disabled{filter:grayscale(.5) brightness(1.05);cursor:default;animation:none}
 @keyframes moneyPulse{0%,100%{transform:rotate(-1deg) scale(1)}50%{transform:rotate(1deg) scale(1.04)}}
 
-.money{position:fixed;inset:0;pointer-events:none;z-index:9000;overflow:hidden}
-.money span{
-  position:absolute;top:-12vh;
-  font-size:2rem;line-height:1;
-  will-change:transform;
-  animation:fall linear forwards;
+.money{
+  position:fixed;inset:0;pointer-events:none;z-index:9000;overflow:hidden;
+  /* la cámara sos vos: el punto de fuga está donde está el personaje */
+  perspective:1000px;
+  perspective-origin:50% 40%;
 }
-@keyframes fall{
-  0%{transform:translate3d(0,0,0) rotate(0);opacity:0}
-  8%{opacity:1}
-  50%{transform:translate3d(var(--sway,24px),58vh,0) rotate(calc(var(--spin,540deg) / 2))}
-  100%{transform:translate3d(0,122vh,0) rotate(var(--spin,540deg));opacity:.95}
+/* El billete sale de frente, desde tu lado de la pantalla, y se aleja hacia ella.
+   Se anima translateZ de verdad, no una escala falsa: por eso los que salen del
+   centro se abren hacia los bordes cuando están cerca tuyo, como pasa de verdad. */
+.money i{
+  position:absolute;left:50%;top:50%;
+  width:88px;height:42px;margin:-21px 0 0 -44px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 92 44'%3E%3Crect x='1.5' y='1.5' width='89' height='41' rx='3' fill='%2386c98a' stroke='%23245c30' stroke-width='2.5'/%3E%3Crect x='6' y='6' width='80' height='32' rx='2' fill='none' stroke='%23245c30' stroke-width='1.3' opacity='.65'/%3E%3Ccircle cx='46' cy='22' r='11.5' fill='%23d8eed2' stroke='%23245c30' stroke-width='1.6'/%3E%3Ctext x='46' y='27.5' font-family='Georgia,serif' font-size='15' font-weight='700' fill='%23245c30' text-anchor='middle'%3E$%3C/text%3E%3Ctext x='16' y='15' font-family='Georgia,serif' font-size='8.5' font-weight='700' fill='%23245c30' text-anchor='middle'%3E100%3C/text%3E%3Ctext x='76' y='36' font-family='Georgia,serif' font-size='8.5' font-weight='700' fill='%23245c30' text-anchor='middle'%3E100%3C/text%3E%3C/svg%3E") center/contain no-repeat;
+  filter:drop-shadow(0 4px 6px rgba(0,0,0,.3));
+  transform-style:preserve-3d;
+  animation:throwIn cubic-bezier(.55,.06,.68,.5) forwards;
+}
+@keyframes throwIn{
+  0%{
+    transform:translate3d(var(--x),var(--y),640px) rotate3d(1,.6,.35,var(--r0));
+    opacity:0;
+  }
+  12%{opacity:.92}
+  30%{opacity:1}
+  85%{opacity:1}
+  100%{
+    transform:translate3d(var(--x),calc(var(--y) + var(--drop)),-780px) rotate3d(1,.6,.35,var(--r1));
+    opacity:0;
+  }
 }
 
-/* el baile va después de moanShake a propósito: si le pegás mientras baila,
-   el baile no se corta (el latigazo y la frase igual suenan) */
-.stage.is-dancing .guy{animation:dance 1s ease-in-out infinite}
-@keyframes dance{
-  0%{transform:translateY(0) rotate(-5deg) scale(1,1)}
-  25%{transform:translateY(-12px) rotate(4deg) scale(.96,1.05)}
-  50%{transform:translateY(0) rotate(5deg) scale(1.05,.95)}
-  75%{transform:translateY(-9px) rotate(-4deg) scale(.97,1.04)}
-  100%{transform:translateY(0) rotate(-5deg) scale(1,1)}
+/* El baile va después de moanShake a propósito: si le pegás mientras baila, el baile
+   no se corta. El pivote está a la altura de los pies, así el balanceo mueve la
+   cadera en vez de hacer saltar todo el cuerpo. Dos ritmos superpuestos (cuerpo a
+   2 s = un compás, cabeza a 1 s) es lo que lo hace ver bailado y no mecánico. */
+.stage.is-dancing .guy{
+  transform-origin:50% 93%;
+  animation:sway 2s ease-in-out infinite;
 }
-.stage.is-dancing .head{animation:headBob .5s ease-in-out infinite}
-@keyframes headBob{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg) translateY(-3px)}}
-.stage.is-dancing .whip{animation:whipWave .5s ease-in-out infinite}
-@keyframes whipWave{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(10deg)}}
+@keyframes sway{
+  0%{transform:rotate(-6deg) translateX(-7px) scale(1,1)}
+  25%{transform:rotate(0deg) translateX(0) scale(1.035,.965)}
+  50%{transform:rotate(6deg) translateX(7px) scale(1,1)}
+  75%{transform:rotate(0deg) translateX(0) scale(.965,1.035)}
+  100%{transform:rotate(-6deg) translateX(-7px) scale(1,1)}
+}
+/* la cabeza va con retraso: sin eso el muñeco se mueve de una pieza */
+.stage.is-dancing .head{animation:headRoll 2s ease-in-out infinite -.45s}
+@keyframes headRoll{
+  0%{transform:rotate(5deg) translateY(0)}
+  25%{transform:rotate(0deg) translateY(-4px)}
+  50%{transform:rotate(-5deg) translateY(0)}
+  75%{transform:rotate(0deg) translateY(-4px)}
+  100%{transform:rotate(5deg) translateY(0)}
+}
+.stage.is-dancing .whip{animation:whipSway 2s ease-in-out infinite -.2s}
+@keyframes whipSway{
+  0%{transform:rotate(9deg)}
+  50%{transform:rotate(-11deg)}
+  100%{transform:rotate(9deg)}
+}
 
 /* ---------- cursor látigo ---------- */
 .whipcursor{
@@ -569,7 +602,7 @@ body.has-whip input,body.has-whip select,body.has-whip textarea{cursor:auto}
   .btn{font-size:.9rem;padding:.34rem .6rem;border-width:3px;box-shadow:3px 3px 0 var(--ink)}
   .btn--main{font-size:.95rem}
   .btn--money{font-size:1rem}
-  .money span{font-size:1.6rem}
+  .money i{width:80px;height:38px;margin:-19px 0 0 -40px}
   .controls{gap:.4rem;margin:.6rem 0 .2rem}
   .counter{margin:.6rem 0 .1rem;font-size:.75rem}
   .foot{margin-top:1rem}
@@ -581,5 +614,5 @@ body.has-whip input,body.has-whip select,body.has-whip textarea{cursor:auto}
   .whipcursor.is-crack .wc__whip,.whipcursor.is-crack .wc__hit{animation:none}
   .is-moan .guy,.is-moan .head,.is-moan .drop,.is-moan .whip{animation:none}
   .btn--money,.stage.is-dancing .guy,.stage.is-dancing .head,.stage.is-dancing .whip{animation:none}
-  .money span{animation-duration:1s}
+  .money i{animation-duration:1s}
 }
