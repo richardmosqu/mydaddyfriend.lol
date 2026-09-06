@@ -599,10 +599,13 @@
     state.count++;
     paintCount();
     save();
-    if (clip) playVoice(clip);
-    else speak(phrase);   // respaldo: el motor del navegador es lo que más tarda
+    if (clip) {
+      playVoice(clip);    // los clips ya son gemidos de verdad: el sintetizado sobra
+    } else {
+      speak(phrase);      // respaldo: el motor del navegador es lo que más tarda
+      gasp();
+    }
     whipCrack();
-    gasp();
     burst();
   }
 
@@ -753,6 +756,17 @@
 
   function whipCrack() {
     if (!state.sound) return;
+    if (whipBuffer) {                       // grabación real: se usa esa
+      withAudio((a) => {
+        const src = a.createBufferSource();
+        src.buffer = whipBuffer;
+        const g = a.createGain();
+        g.gain.value = 0.9;
+        src.connect(g).connect(a.destination);
+        src.start();
+      });
+      return;
+    }
     withAudio((a) => {
       const t0 = a.currentTime, buf = noise(a);
       const tc = t0 + CRACK_AT;
@@ -854,6 +868,7 @@
   // archivos que van por el mismo AudioContext que el látigo, que sí suena en todos
   // lados. La voz del navegador queda sólo como respaldo.
   let voiceClips = [];
+  let whipBuffer = null;
   let clipsPromise = null;
   let voiceNode = null;
 
@@ -869,13 +884,22 @@
 
       let a;
       try { a = ac(); } catch (e) { return; }
+
+      const grab = async (file) => {
+        const res = await fetch('sounds/' + encodeURIComponent(file));
+        if (!res.ok) throw new Error(file);
+        return a.decodeAudioData(await res.arrayBuffer());
+      };
+
+      if (man && man.whip) {
+        try { whipBuffer = await grab(man.whip); }
+        catch (e) { /* se sigue con el látigo sintetizado */ }
+      }
+
       const list = (man && man.clips) || [];
       const loaded = await Promise.all(list.map(async (c) => {
         try {
-          const res = await fetch('sounds/' + encodeURIComponent(c.file));
-          if (!res.ok) return null;
-          const buf = await a.decodeAudioData(await res.arrayBuffer());
-          return { text: String(c.text || c.file).toUpperCase(), buffer: buf };
+          return { text: String(c.text || c.file).toUpperCase(), buffer: await grab(c.file) };
         } catch (e) { return null; }
       }));
       voiceClips = loaded.filter(Boolean);

@@ -45,14 +45,12 @@ así que siguen ahí cuando volvés. `🗑️ clear` los limpia.
 - Los colores se pueden pisar a mano desde la tira de swatches. Lo elegido a mano gana
   sobre lo muestreado y queda guardado; el pelo elegido a mano no se oscurece (si querés
   rubio platino o rosa, queda así).
-- **Las frases son archivos de audio** en `sounds/`, generados con `pico2wave` y
-  reproducidos por el mismo `AudioContext` que el latigazo. Antes esto lo hacía la
-  `SpeechSynthesis` del navegador y era imposible de sostener: en varios navegadores
-  emite la locución y no suena nada, sin disparar `start` ni `error`. Ahora la voz del
-  navegador quedó sólo como respaldo por si falta la carpeta, y sigue habiendo un
-  selector en el panel para volver a ella. Ver `sounds/README.md` para reemplazarlas
-  por grabaciones propias.
-- El gemido con formantes quedó como un respiro corto (180-240 ms) antes de la frase.
+- **Todo el audio son archivos** en `sounds/`, reproducidos por el mismo `AudioContext`:
+  el latigazo, las frases y la canción. Antes las frases las decía la `SpeechSynthesis`
+  del navegador y era imposible de sostener: en varios navegadores emite la locución y no
+  suena nada, sin disparar `start` ni `error`. Quedó sólo como respaldo por si falta la
+  carpeta, con un selector en el panel para volver a ella. Ver `sounds/README.md`.
+- El gemido con formantes quedó sólo para ese respaldo: cuando hay clips grabados sobra.
 - **Money rain**: el botón tira billetes de frente, desde donde está el que mira hacia
   el personaje, mientras baila y suena una canción de 8 s. No es una escala falsa: se
   anima `translateZ` de verdad sobre un contenedor con `perspective`, con el punto de
