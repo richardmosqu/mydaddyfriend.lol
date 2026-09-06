@@ -53,8 +53,11 @@ así que siguen ahí cuando volvés. `🗑️ clear` los limpia.
   selector en el panel para volver a ella. Ver `sounds/README.md` para reemplazarlas
   por grabaciones propias.
 - El gemido con formantes quedó como un respiro corto (180-240 ms) antes de la frase.
-- **Money rain**: el botón tira billetes por toda la pantalla, el personaje baila y suena
-  una canción de 8 s. La canción está compuesta a mano en `sounds/money-rain.mp3` (kick,
+- **Money rain**: el botón tira billetes de frente, desde donde está el que mira hacia
+  el personaje, mientras baila y suena una canción de 8 s. No es una escala falsa: se
+  anima `translateZ` de verdad sobre un contenedor con `perspective`, con el punto de
+  fuga puesto donde está el personaje. Un billete pasa de 286 px de ancho al salir a
+  45 px al llegar. Son un SVG dibujado, no emojis. La canción está compuesta a mano en `sounds/money-rain.mp3` (kick,
   clap, hats, bajo y un riff pentatónico a 120 BPM, generados por síntesis en Python y
   masterizados con ffmpeg) y se reproduce por el mismo `AudioContext` que todo lo demás.
   El baile es CSS a 1 s por ciclo, o sea dos tiempos de la canción. Se le puede seguir

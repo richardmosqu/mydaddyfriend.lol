@@ -1120,7 +1120,6 @@
 
   /* ---------------------------------------------------------- money rain */
 
-  const BILLS = ['💵', '💵', '💵', '💴', '💶', '💷', '💰', '🤑'];
   let songBuffer = null, songPromise = null, songNode = null;
   let dripId = null, cutId = null, stopId = null;
 
@@ -1136,17 +1135,26 @@
     return songPromise;
   }
 
-  function dropBill() {
-    const s = document.createElement('span');
-    s.textContent = pick(BILLS);
-    s.style.left = rand(-2, 98) + 'vw';
-    s.style.fontSize = rand(1.3, 2.8).toFixed(2) + 'rem';
-    s.style.animationDuration = rand(1.7, 3.2).toFixed(2) + 's';
-    s.style.setProperty('--sway', rand(-70, 70).toFixed(0) + 'px');
-    s.style.setProperty('--spin', rand(-900, 900).toFixed(0) + 'deg');
-    s.addEventListener('animationend', () => s.remove());
-    el.money.appendChild(s);
-    while (el.money.childElementCount > 90) el.money.firstElementChild.remove();
+  // Un billete lanzado de frente: aparece cerca tuyo (z alto, o sea grande) y se
+  // aleja hacia el personaje (z negativo, chico). El x/y queda fijo: la perspectiva
+  // sola lo hace converger hacia el punto de fuga a medida que se va.
+  function tossBill() {
+    const b = document.createElement('i');
+    b.style.setProperty('--x', rand(-115, 115).toFixed(0) + 'px');
+    b.style.setProperty('--y', rand(-95, 85).toFixed(0) + 'px');
+    b.style.setProperty('--drop', rand(30, 150).toFixed(0) + 'px');
+    b.style.setProperty('--r0', rand(-22, 22).toFixed(0) + 'deg');
+    b.style.setProperty('--r1', rand(-780, 780).toFixed(0) + 'deg');
+    b.style.animationDuration = rand(1.3, 2.0).toFixed(2) + 's';
+    b.addEventListener('animationend', () => b.remove());
+    el.money.appendChild(b);
+    while (el.money.childElementCount > 80) el.money.firstElementChild.remove();
+  }
+
+  // se tiran de a puñados, no de a goteo: así se lee como que los estás lanzando
+  function throwHandful() {
+    const n = 4 + ((Math.random() * 4) | 0);
+    for (let i = 0; i < n; i++) setTimeout(tossBill, i * rand(45, 130));
   }
 
   function stopRain() {
@@ -1165,8 +1173,8 @@
     el.stage.classList.add('is-dancing');
 
     // los billetes arrancan ya, sin esperar a que baje la canción
-    for (let i = 0; i < 10; i++) dropBill();
-    dripId = setInterval(dropBill, 110);
+    throwHandful();
+    dripId = setInterval(throwHandful, 620);
 
     await loadSong();
     const secs = songBuffer ? songBuffer.duration : 8.4;
@@ -1184,7 +1192,7 @@
       });
     }
 
-    // el goteo corta antes que la canción, así los últimos billetes llegan al piso
+    // se deja de tirar antes del final, así los últimos billetes terminan su vuelo
     cutId = setTimeout(() => { clearInterval(dripId); dripId = null; }, Math.max(500, (secs - 1.4) * 1000));
     stopId = setTimeout(stopRain, secs * 1000);
   }
