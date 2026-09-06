@@ -757,16 +757,39 @@
   // así que el golpe quedaba tapado y parecía que no sonaba.
   const CRACK_AT = 0.055;
 
+  // El mp3 del látigo trae 340 ms de silencio antes del chasquido: tocado tal cual,
+  // el golpe llega casi medio segundo después del click. Se mide el arranque real y
+  // el pico al cargarlo, se saltea el silencio, y con el pico se sabe en qué momento
+  // exacto pega para encimarle el slap.
+  let whipLead = 0;          // silencio del principio que se saltea
+  let whipHit = CRACK_AT;    // cuánto tarda el golpe desde que arranca a sonar
+
+  function scanHit(buffer) {
+    const d = buffer.getChannelData(0), sr = buffer.sampleRate;
+    let peak = 0, at = 0;
+    for (let i = 0; i < d.length; i++) {
+      const v = d[i] < 0 ? -d[i] : d[i];
+      if (v > peak) { peak = v; at = i; }
+    }
+    let lead = 0;
+    const floor = peak * 0.04;
+    while (lead < at && (d[lead] < 0 ? -d[lead] : d[lead]) < floor) lead++;
+    lead = Math.max(0, lead - Math.round(sr * 0.005));   // 5 ms de aire: cortar al ras chasquea
+    return { lead: lead / sr, hit: (at - lead) / sr };
+  }
+
   function whipCrack() {
     if (!state.sound) return;
     if (whipBuffer) {                       // grabación real: se usa esa
       withAudio((a) => {
+        const t0 = a.currentTime;
         const src = a.createBufferSource();
         src.buffer = whipBuffer;
         const g = a.createGain();
         g.gain.value = 0.9;
         src.connect(g).connect(a.destination);
-        src.start();
+        src.start(t0, whipLead);
+        slap(a, t0 + whipHit);
       });
       return;
     }
@@ -809,7 +832,58 @@
       g3.gain.exponentialRampToValueAtTime(0.0001, tc + 0.13);
       osc.connect(g3).connect(a.destination);
       osc.start(tc); osc.stop(tc + 0.16);
+
+      slap(a, tc);
     });
+  }
+
+  // El chasquido es el látigo en el aire; el slap es lo que suena cuando pega.
+  // Tres capas: el "chas" de la piel, el cuerpo grave de la carne, y un poco de aire
+  // agudo arriba para que no quede sonando a bombo.
+  function slap(a, t) {
+    if (slapBuffer) {                       // si dejan un slap.mp3, manda ese
+      const src = a.createBufferSource();
+      src.buffer = slapBuffer;
+      const g = a.createGain();
+      g.gain.value = 0.95;
+      src.connect(g).connect(a.destination);
+      src.start(t, slapLead);
+      return;
+    }
+    const buf = noise(a);
+    const tone = rand(0.9, 1.12);           // que dos clicks seguidos no suenen calcados
+
+    const skin = a.createBufferSource(); skin.buffer = buf;
+    const bp = a.createBiquadFilter();
+    bp.type = 'bandpass'; bp.Q.value = 0.7;
+    bp.frequency.value = 1500 * tone;
+    const g1 = a.createGain();
+    g1.gain.setValueAtTime(0.0001, t);
+    g1.gain.exponentialRampToValueAtTime(0.62, t + 0.003);
+    g1.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
+    skin.connect(bp).connect(g1).connect(a.destination);
+    skin.start(t, rand(0, 0.15)); skin.stop(t + 0.14);
+
+    const body = a.createOscillator();
+    body.type = 'sine';
+    body.frequency.setValueAtTime(170 * tone, t);
+    body.frequency.exponentialRampToValueAtTime(52, t + 0.11);
+    const g2 = a.createGain();
+    g2.gain.setValueAtTime(0.0001, t);
+    g2.gain.exponentialRampToValueAtTime(0.44, t + 0.005);
+    g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.17);
+    body.connect(g2).connect(a.destination);
+    body.start(t); body.stop(t + 0.2);
+
+    const air = a.createBufferSource(); air.buffer = buf;
+    const hp = a.createBiquadFilter();
+    hp.type = 'highpass'; hp.frequency.value = 4600;
+    const g3 = a.createGain();
+    g3.gain.setValueAtTime(0.0001, t);
+    g3.gain.exponentialRampToValueAtTime(0.22, t + 0.002);
+    g3.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+    air.connect(hp).connect(g3).connect(a.destination);
+    air.start(t, rand(0, 0.15)); air.stop(t + 0.09);
   }
 
   // Un gemido sintetizado con formantes, por debajo de la voz del navegador.
@@ -819,7 +893,7 @@
     if (!state.sound) return;
     withAudio((a) => {
       // arranca recién pasado el chasquido: si se pisan, no se oye ninguno de los dos
-      const t0 = a.currentTime + CRACK_AT + 0.05, dur = rand(0.18, 0.24);
+      const t0 = a.currentTime + whipHit + 0.05, dur = rand(0.18, 0.24);
       const f0 = rand(196, 248);   // rango de voz femenina
 
       const osc = a.createOscillator();
@@ -872,6 +946,8 @@
   // lados. La voz del navegador queda sólo como respaldo.
   let voiceClips = [];
   let whipBuffer = null;
+  let slapBuffer = null;
+  let slapLead = 0;
   let clipsPromise = null;
   let voiceNode = null;
 
@@ -895,8 +971,18 @@
       };
 
       if (man && man.whip) {
-        try { whipBuffer = await grab(man.whip); }
-        catch (e) { /* se sigue con el látigo sintetizado */ }
+        try {
+          whipBuffer = await grab(man.whip);
+          const m = scanHit(whipBuffer);
+          whipLead = m.lead;
+          whipHit = m.hit;
+        } catch (e) { /* se sigue con el látigo sintetizado */ }
+      }
+      if (man && man.slap) {
+        try {
+          slapBuffer = await grab(man.slap);
+          slapLead = scanHit(slapBuffer).lead;
+        } catch (e) { /* se sigue con el slap sintetizado */ }
       }
 
       const list = (man && man.clips) || [];
@@ -922,7 +1008,7 @@
       const g = a.createGain();
       g.gain.value = 0.95;
       src.connect(g).connect(a.destination);
-      src.start(a.currentTime + CRACK_AT + 0.13);   // entra después del chasquido
+      src.start(a.currentTime + whipHit + 0.15);   // entra después del golpe
       voiceNode = src;
     });
   }
