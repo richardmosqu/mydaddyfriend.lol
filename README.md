@@ -58,6 +58,15 @@ así que siguen ahí cuando volvés. `🗑️ clear` los limpia.
   3. **Un gemido sintetizado por debajo**, con formantes: un oscilador diente de sierra
      con vibrato pasado por tres pasa-banda que se abren de "mm" a "ah", más un poco de
      ruido de aire. Eso es lo que le pone cuerpo humano.
+- En celular el `AudioContext` arranca suspendido y `resume()` es asíncrono: si se
+  programan los sonidos antes de que arranque quedan agendados en un tiempo que ya pasó
+  y no suenan nunca. Por eso todo el audio pasa por un `withAudio()` que espera a que el
+  contexto esté corriendo. El golpe se dispara en `pointerdown`, no en `click`, que en
+  celular llega 100-300 ms más tarde.
+- `styles.css` y `app.js` se piden con `?v=N`. Sin eso el navegador se queda con el CSS
+  viejo después de un deploy y la página se rompe entera (los `display:none` de poses y
+  accesorios desaparecen y se dibuja todo superpuesto). **Al cambiar CSS o JS hay que
+  subir ese número en `index.html`.**
 - El cursor es un látigo que sigue al mouse y chasquea al hacer click. En celular no hay
   cursor, así que la animación aparece en el punto donde tocaste y se va sola.
 - **Poses**: las cuatro están dibujadas en SVG dentro del mismo `viewBox`, y solo se muestra

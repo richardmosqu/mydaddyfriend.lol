@@ -75,24 +75,22 @@ body{
 }
 
 /* ---------- globo de diálogo ---------- */
-.bubblewrap{
-  min-height:74px;width:100%;
-  display:flex;align-items:flex-end;justify-content:center;
-  pointer-events:none;
-}
+/* va dentro del escenario, arriba a la derecha: no reserva alto propio */
 .bubble{
-  position:relative;background:#fff;
+  position:absolute;right:-2%;top:15%;z-index:6;
+  max-width:66%;pointer-events:none;
+  background:#fff;
   border:4px solid var(--ink);border-radius:22px;
   padding:.5rem 1rem .6rem;
   font-size:clamp(1.05rem,5vw,1.6rem);line-height:1.05;
-  text-align:center;max-width:100%;
-  box-shadow:6px 6px 0 var(--pink);
+  text-align:center;
+  box-shadow:5px 5px 0 var(--pink);
   transform:scale(0) rotate(var(--rot,-3deg));
   transform-origin:50% 110%;opacity:0;
   transition:transform .16s cubic-bezier(.2,1.7,.5,1),opacity .16s;
 }
-.bubble::after{content:"";position:absolute;left:52%;bottom:-20px;border:10px solid transparent;border-top-color:var(--ink)}
-.bubble::before{content:"";position:absolute;left:52%;bottom:-13px;z-index:1;border:10px solid transparent;border-top-color:#fff}
+.bubble::after{content:"";position:absolute;left:22%;bottom:-20px;border:10px solid transparent;border-top-color:var(--ink)}
+.bubble::before{content:"";position:absolute;left:22%;bottom:-13px;z-index:1;border:10px solid transparent;border-top-color:#fff}
 .bubble.show{opacity:1;transform:scale(1) rotate(var(--rot,-3deg))}
 
 /* ---------- escenario ---------- */
@@ -136,7 +134,7 @@ body{
   font:inherit;font-size:clamp(1rem,4.4vw,1.45rem);line-height:1.1;
   text-transform:uppercase;text-align:center;
   border:0;background:transparent;outline:0;padding:0;
-  color:#fff;width:min(52vw,9ch);cursor:text;
+  color:#fff;width:min(58vw,11ch);cursor:text;
   -webkit-text-stroke:3px #0e0e12;
   paint-order:stroke fill;
   text-shadow:0 2px 0 #0e0e12,2px 0 0 #0e0e12,-2px 0 0 #0e0e12,0 -2px 0 #0e0e12,0 4px 7px rgba(0,0,0,.35);
@@ -346,6 +344,11 @@ body{
 .btn--ghost{background:transparent;box-shadow:3px 3px 0 var(--ink);font-size:.9rem}
 .btn[aria-pressed="false"]{opacity:.55;text-decoration:line-through}
 
+/* ---------- cajón de personalización ---------- */
+.wardrobe{width:100%;display:flex;flex-direction:column;align-items:center;gap:.55rem}
+.wardrobe[hidden]{display:none}
+.wardrobe__extra{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center}
+
 /* ---------- selector de pose, objeto y accesorios ---------- */
 .picker{
   display:flex;flex-direction:column;gap:.35rem;
@@ -369,6 +372,11 @@ body{
   .chip{font-size:.66rem;padding:.14rem .4rem}
   .picker__label{width:2.6rem;font-size:.55rem}
 }
+
+/* ---------- cajón de personalización ---------- */
+.wardrobe{width:100%;display:flex;flex-direction:column;align-items:center;gap:.55rem}
+.wardrobe[hidden]{display:none}
+.wardrobe__extra{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center}
 
 /* ---------- selector de pose, objeto y accesorios ---------- */
 .picker{
@@ -510,6 +518,21 @@ body.has-whip input,body.has-whip select,body.has-whip textarea{cursor:auto}
 .foot{text-align:center;margin-top:1.6rem;padding:0 1rem;font-size:.8rem;color:#6b5f4c;position:relative;z-index:2}
 .foot p{margin:.25rem 0}
 .foot__weird{font-family:ui-monospace,"Courier New",monospace;font-size:.7rem;opacity:.65}
+
+/* ---------- celular: menos aire y menos alto ---------- */
+@media (max-width:520px){
+  .top{padding:.6rem .6rem .1rem}
+  .live{margin-bottom:.25rem;font-size:.62rem}
+  .tagline{font-size:.82rem;padding:.2rem .5rem;margin-top:.4rem}
+  .main{padding:.5rem .7rem 0}
+  .stage{width:min(80vw,300px)}
+  .btn{font-size:.9rem;padding:.34rem .6rem;border-width:3px;box-shadow:3px 3px 0 var(--ink)}
+  .btn--main{font-size:.95rem}
+  .controls{gap:.4rem;margin:.6rem 0 .2rem}
+  .counter{margin:.6rem 0 .1rem;font-size:.75rem}
+  .foot{margin-top:1rem}
+  .bubble{font-size:1rem;padding:.35rem .7rem .45rem;right:-4%;top:16%;max-width:72%}
+}
 
 @media (prefers-reduced-motion:reduce){
   .ticker__track,.sunburst,.head__ring,.logo,.guy,.floaters span,.nametag__pen{animation:none}
