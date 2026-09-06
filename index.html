@@ -10,7 +10,7 @@
 <meta property="og:description" content="Put your friend's face on the doll and smack it. Don't ask.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23ffe000'/%3E%3Cpath d='M6 12 4 3l9 5zM26 12l2-9-9 5z' fill='%2314110f'/%3E%3Cellipse cx='16' cy='17' rx='9' ry='11' fill='%23eeb489' stroke='%2314110f' stroke-width='2'/%3E%3Cpath d='M10 15q3-3 5 0M17 15q3-3 5 0' stroke='%2314110f' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3Cellipse cx='16' cy='23' rx='3.5' ry='4.5' fill='%233d0a17'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="styles.css?v=12">
+<link rel="stylesheet" href="styles.css?v=16">
 </head>
 <body>
 
@@ -105,24 +105,43 @@
             <path d="M28 -32 L0 -16 L28 6 L0 22 L26 44"/>
           </g>
 
-          <!-- pelo, flequillo y orejas de gato; el origen es el centro de la cabeza de la pose "de pie" -->
-          <g id="g-headgear">
-            <path d="M146 68 C133 84 128 112 130 146 C132 178 136 208 141 236 C139 204 137 178 139 152 C141 122 146 96 156 76 Z"/>
-            <path d="M214 68 C227 84 232 112 230 146 C228 178 224 208 219 236 C221 204 223 178 221 152 C219 122 214 96 204 76 Z"/>
-            <path d="M140 100 C142 74 158 60 180 60 C202 60 218 74 220 100 C209 80 197 71 180 71 C163 71 151 80 140 100 Z"/>
-            <path d="M134 96 C146 62 214 62 226 96" fill="none" stroke="#141118" stroke-width="9" stroke-linecap="round"/>
-            <path d="M136 90 L124 34 L174 66 Z" fill="#141118" stroke="#141118" stroke-width="10" stroke-linejoin="round"/>
-            <path d="M224 90 L236 34 L186 66 Z" fill="#141118" stroke="#141118" stroke-width="10" stroke-linejoin="round"/>
-            <path d="M141 82 L134 48 L162 66 Z" fill="#ff6f9c" opacity=".8"/>
-            <path d="M219 82 L226 48 L198 66 Z" fill="#ff6f9c" opacity=".8"/>
+          <!-- Pelo y orejas, dibujados una sola vez alrededor del centro de cabeza de la
+               pose "de pie" (180,124). Cada pose los coloca y agranda con un transform. -->
+          <g id="g-hair-long">
+            <path d="M180 42 C136 42 110 80 110 130 C110 168 104 226 100 286 C97 326 101 356 112 350 C123 344 130 328 133 292 C137 244 141 202 143 174 C155 190 205 190 217 174 C219 202 223 244 227 292 C230 328 237 344 248 350 C259 356 263 326 260 286 C256 226 250 168 250 130 C250 80 224 42 180 42 Z"/>
+          </g>
+          <g id="g-hair-hi">
+            <path d="M124 138 C118 198 112 258 110 306 C109 332 111 350 116 360 C110 334 112 292 116 248 C120 206 122 170 124 138 Z"/>
+          </g>
+          <g id="g-hair-short">
+            <path d="M180 42 C136 42 110 80 110 130 C110 158 113 184 119 204 C124 220 135 226 144 220 C137 199 134 173 135 150 C156 172 204 172 225 150 C226 173 223 199 216 220 C225 226 236 220 241 204 C247 184 250 158 250 130 C250 80 224 42 180 42 Z"/>
+          </g>
+          <g id="g-hair-front-long">
+            <path d="M142 58 C126 78 120 112 122 152 C124 190 129 226 135 258 C132 220 130 190 132 158 C134 122 140 90 152 66 Z"/>
+            <path d="M218 58 C234 78 240 112 238 152 C236 190 231 226 225 258 C228 220 230 190 228 158 C226 122 220 90 208 66 Z"/>
+            <path d="M132 88 C134 56 154 40 180 40 C206 40 226 56 228 88 C215 64 200 53 180 53 C160 53 145 64 132 88 Z"/>
+          </g>
+          <g id="g-hair-front-short">
+            <path d="M144 60 C130 78 124 104 126 138 C127 158 130 175 134 190 C131 170 130 150 131 132 C133 102 139 78 152 62 Z"/>
+            <path d="M216 60 C230 78 236 104 234 138 C233 158 230 175 226 190 C229 170 230 150 229 132 C227 102 221 78 208 62 Z"/>
+            <path d="M132 88 C134 56 154 40 180 40 C206 40 226 56 228 88 C215 64 200 53 180 53 C160 53 145 64 132 88 Z"/>
+          </g>
+          <g id="g-catears">
+            <path d="M120 100 C136 58 224 58 240 100" fill="none" stroke="#141118" stroke-width="10" stroke-linecap="round"/>
+            <path d="M124 92 L110 30 L168 66 Z" fill="#141118" stroke="#141118" stroke-width="11" stroke-linejoin="round"/>
+            <path d="M236 92 L250 30 L192 66 Z" fill="#141118" stroke="#141118" stroke-width="11" stroke-linejoin="round"/>
+            <path d="M130 84 L121 46 L152 66 Z" fill="#ff6f9c" opacity=".8"/>
+            <path d="M230 84 L239 46 L208 66 Z" fill="#ff6f9c" opacity=".8"/>
           </g>
         </defs>
 
         <!-- ============ DE PIE ============ -->
         <g class="pose" data-pose="stand">
           <ellipse class="ground" cx="180" cy="660" rx="76" ry="10"/>
-          <path class="hair" d="M180 54 C144 54 122 86 122 128 C122 162 117 214 112 268 C109 306 112 334 122 340 C132 346 139 331 142 300 C146 256 150 218 152 192 C162 204 198 204 208 192 C210 218 214 256 218 300 C221 331 228 346 238 340 C248 334 251 306 248 268 C243 214 238 162 238 128 C238 86 216 54 180 54 Z"/>
-          <path class="hair-hi" d="M136 132 C131 186 126 244 124 292 C123 316 125 332 129 342 C124 318 126 280 129 240 C132 202 134 164 136 132 Z"/>
+          <g class="hairzone">
+            <g class="hairback hairback--long"><use class="hairfill" href="#g-hair-long"/><use class="hairhi" href="#g-hair-hi"/></g>
+            <g class="hairback hairback--short"><use class="hairfill" href="#g-hair-short"/></g>
+          </g>
           <g class="ink">
             <path d="M141 232 C128 252 118 276 115 300" stroke-width="32"/>
             <path d="M115 300 C113 324 114 350 116 370" stroke-width="27"/>
@@ -172,9 +191,11 @@
           <ellipse class="shade" cx="180" cy="326" rx="3.5" ry="5.5"/>
           <path class="skin" d="M164 148 L164 200 C164 212 196 212 196 200 L196 148 Z"/>
           <path class="shade" d="M164 160 C173 178 187 178 196 160 L196 148 L164 148 Z"/>
-          <ellipse class="skin" cx="180" cy="124" rx="44" ry="52"/>
-          <ellipse class="ear" cx="137" cy="130" rx="9" ry="14"/>
-          <ellipse class="ear" cx="223" cy="130" rx="9" ry="14"/>
+          <g class="headzone" transform="translate(180 124) scale(1.4) translate(-180 -124)">
+            <ellipse class="skin" cx="180" cy="124" rx="44" ry="52"/>
+            <ellipse class="ear" cx="137" cy="130" rx="9" ry="14"/>
+            <ellipse class="ear" cx="223" cy="130" rx="9" ry="14"/>
+          </g>
           <g class="strap">
             <path d="M147 238 L166 208"/><path d="M213 238 L194 208"/>
             <path d="M180 236 L180 300"/>
@@ -239,8 +260,10 @@
         <!-- ============ ARRODILLADA ============ -->
         <g class="pose" data-pose="kneel">
           <ellipse class="ground" cx="180" cy="600" rx="104" ry="13"/>
-          <path class="hair" d="M180 82 C140 82 116 118 116 162 C116 200 110 254 105 306 C102 342 106 368 116 374 C126 380 133 364 136 334 C140 292 145 254 148 228 C160 242 200 242 212 228 C215 254 220 292 224 334 C227 364 234 380 244 374 C254 368 258 342 255 306 C250 254 244 200 244 162 C244 118 220 82 180 82 Z"/>
-          <path class="hair-hi" d="M131 168 C126 220 121 276 119 322 C118 346 120 360 124 370 C119 348 121 312 124 274 C127 238 129 198 131 168 Z"/>
+          <g class="hairzone" transform="translate(0 32)">
+            <g class="hairback hairback--long"><use class="hairfill" href="#g-hair-long"/><use class="hairhi" href="#g-hair-hi"/></g>
+            <g class="hairback hairback--short"><use class="hairfill" href="#g-hair-short"/></g>
+          </g>
           <g class="ink">
             <path d="M143 272 C128 296 119 322 118 346" stroke-width="32"/>
             <path d="M118 346 C120 372 130 394 146 406" stroke-width="27"/>
@@ -280,9 +303,11 @@
           <ellipse class="shade" cx="180" cy="372" rx="3.5" ry="5.5"/>
           <path class="skin" d="M163 190 L163 244 C163 256 197 256 197 244 L197 190 Z"/>
           <path class="shade" d="M163 202 C172 220 188 220 197 202 L197 190 L163 190 Z"/>
-          <ellipse class="skin" cx="180" cy="156" rx="48" ry="57"/>
-          <ellipse class="ear" cx="133" cy="163" rx="10" ry="15"/>
-          <ellipse class="ear" cx="227" cy="163" rx="10" ry="15"/>
+          <g class="headzone" transform="translate(180 156) scale(1.4) translate(-180 -124)">
+            <ellipse class="skin" cx="180" cy="124" rx="44" ry="52"/>
+            <ellipse class="ear" cx="137" cy="130" rx="9" ry="14"/>
+            <ellipse class="ear" cx="223" cy="130" rx="9" ry="14"/>
+          </g>
           <g class="strap">
             <path d="M148 282 L167 246"/><path d="M212 282 L193 246"/>
             <path d="M180 280 L180 348"/>
@@ -345,7 +370,10 @@
         <!-- ============ ACOSTADA (boca abajo, apoyada en los antebrazos) ============ -->
         <g class="pose" data-pose="lying">
           <ellipse class="ground" cx="180" cy="516" rx="156" ry="30"/>
-          <path class="hair" d="M180 78 C142 78 120 110 120 152 C120 188 114 240 108 292 C105 328 109 354 120 358 C131 362 138 348 141 318 C145 276 149 240 152 216 C162 228 198 228 208 216 C211 240 215 276 219 318 C222 348 229 362 240 358 C251 354 255 328 252 292 C246 240 240 188 240 152 C240 110 218 78 180 78 Z"/>
+          <g class="hairzone" transform="translate(0 26)">
+            <g class="hairback hairback--long"><use class="hairfill" href="#g-hair-long"/><use class="hairhi" href="#g-hair-hi"/></g>
+            <g class="hairback hairback--short"><use class="hairfill" href="#g-hair-short"/></g>
+          </g>
           <g class="ink">
             <path d="M148 250 C120 268 102 296 100 322" stroke-width="32"/>
             <path d="M100 322 C104 344 124 358 152 362" stroke-width="27"/>
@@ -393,9 +421,11 @@
           <path class="shade" d="M180 424 C177 444 177 470 180 486 C183 470 183 444 180 424 Z"/>
           <path class="skin" d="M165 176 L165 226 C165 238 195 238 195 226 L195 176 Z"/>
           <path class="shade" d="M165 188 C174 206 186 206 195 188 L195 176 L165 176 Z"/>
-          <ellipse class="skin" cx="180" cy="150" rx="46" ry="54"/>
-          <ellipse class="ear" cx="135" cy="156" rx="9" ry="14"/>
-          <ellipse class="ear" cx="225" cy="156" rx="9" ry="14"/>
+          <g class="headzone" transform="translate(180 150) scale(1.4) translate(-180 -124)">
+            <ellipse class="skin" cx="180" cy="124" rx="44" ry="52"/>
+            <ellipse class="ear" cx="137" cy="130" rx="9" ry="14"/>
+            <ellipse class="ear" cx="223" cy="130" rx="9" ry="14"/>
+          </g>
           <g class="strap">
             <path d="M148 260 L166 232"/><path d="M212 260 L194 232"/>
             <path d="M180 258 L180 322"/>
@@ -446,117 +476,6 @@
           </g>
         </g>
 
-        <!-- ============ DE ESPALDAS ============ -->
-        <g class="pose" data-pose="back">
-          <ellipse class="ground" cx="180" cy="660" rx="76" ry="10"/>
-          <g class="ink">
-            <path d="M140 226 C126 248 116 274 113 300" stroke-width="32"/>
-            <path d="M113 300 C111 326 112 352 114 372" stroke-width="27"/>
-            <path d="M114 372 L116 388" stroke-width="23"/>
-            <path d="M222 226 C236 248 246 274 249 300" stroke-width="32"/>
-            <path d="M249 300 C251 326 250 352 248 372" stroke-width="27"/>
-            <path d="M248 372 L246 388" stroke-width="23"/>
-          </g>
-          <g class="limb">
-            <path d="M140 226 C126 248 116 274 113 300" stroke-width="24"/>
-            <path d="M113 300 C111 326 112 352 114 372" stroke-width="19"/>
-            <path d="M114 372 L116 388" stroke-width="15"/>
-            <path d="M222 226 C236 248 246 274 249 300" stroke-width="24"/>
-            <path d="M249 300 C251 326 250 352 248 372" stroke-width="19"/>
-            <path d="M248 372 L246 388" stroke-width="15"/>
-          </g>
-          <circle class="skin" cx="117" cy="397" r="11"/>
-          <circle class="skin" cx="245" cy="397" r="11"/>
-          <g class="ink">
-            <path d="M160 436 C154 466 150 492 149 514" stroke-width="54"/>
-            <path d="M149 514 C147 538 145 564 144 586" stroke-width="41"/>
-            <path d="M144 586 C143 606 142 622 141 634" stroke-width="29"/>
-            <path d="M200 436 C206 466 210 492 211 514" stroke-width="54"/>
-            <path d="M211 514 C213 538 215 564 216 586" stroke-width="41"/>
-            <path d="M216 586 C217 606 218 622 219 634" stroke-width="29"/>
-          </g>
-          <g class="limb">
-            <path d="M160 436 C154 466 150 492 149 514" stroke-width="46"/>
-            <path d="M149 514 C147 538 145 564 144 586" stroke-width="33"/>
-            <path d="M144 586 C143 606 142 622 141 634" stroke-width="21"/>
-            <path d="M200 436 C206 466 210 492 211 514" stroke-width="46"/>
-            <path d="M211 514 C213 538 215 564 216 586" stroke-width="33"/>
-            <path d="M216 586 C217 606 218 622 219 634" stroke-width="21"/>
-          </g>
-          <ellipse class="skin" cx="140" cy="646" rx="18" ry="11"/>
-          <ellipse class="skin" cx="220" cy="646" rx="18" ry="11"/>
-          <g class="stocking">
-            <path d="M150 490 L149 514" stroke-width="46"/>
-            <path d="M149 514 C147 538 145 564 144 586" stroke-width="35"/>
-            <path d="M144 586 C143 608 142 624 141 636" stroke-width="23"/>
-            <path d="M210 490 L211 514" stroke-width="46"/>
-            <path d="M211 514 C213 538 215 564 216 586" stroke-width="35"/>
-            <path d="M216 586 C217 608 218 624 219 636" stroke-width="23"/>
-          </g>
-          <g class="stocking-band">
-            <path d="M150 484 L150 494" stroke-width="49"/>
-            <path d="M210 484 L210 494" stroke-width="49"/>
-          </g>
-          <ellipse class="stocking-foot" cx="140" cy="646" rx="18" ry="11"/>
-          <ellipse class="stocking-foot" cx="220" cy="646" rx="18" ry="11"/>
-          <path class="skin" d="M180 196 C158 196 140 208 135 230 C130 252 144 288 147 318 C150 348 130 366 128 396 C126 428 148 450 180 450 C212 450 234 428 232 396 C230 366 210 348 213 318 C216 288 230 252 225 230 C220 208 202 196 180 196 Z"/>
-          <path class="shade" d="M180 250 C176 300 176 350 180 396 C184 350 184 300 180 250 Z"/>
-          <ellipse class="skin-soft" cx="151" cy="408" rx="36" ry="32"/>
-          <ellipse class="skin-soft" cx="209" cy="408" rx="36" ry="32"/>
-          <path class="shade" d="M180 372 C176 392 176 420 180 440 C184 420 184 392 180 372 Z"/>
-          <path class="shade" d="M126 400 C130 424 140 438 156 442 C138 442 126 426 122 404 Z"/>
-          <path class="skin" d="M166 152 L166 200 C166 212 194 212 194 200 L194 152 Z"/>
-          <ellipse class="skin" cx="194" cy="118" rx="44" ry="51"/>
-          <ellipse class="ear" cx="152" cy="124" rx="9" ry="14"/>
-          <g class="strap">
-            <path d="M152 232 L172 206"/><path d="M212 232 L192 206"/>
-            <path d="M148 244 C164 252 196 252 214 244"/>
-            <path d="M144 300 C160 310 200 310 218 300"/>
-            <path d="M136 372 C156 386 204 386 226 372"/>
-            <path d="M180 380 L180 428"/>
-          </g>
-          <g class="strap">
-            <path d="M156 384 L155 490"/><path d="M172 388 L166 490"/>
-            <path d="M204 384 L205 490"/><path d="M188 388 L194 490"/>
-          </g>
-          <path class="hair" d="M194 46 C154 46 132 82 134 126 C136 166 128 226 122 286 C118 326 122 352 134 356 C146 360 152 344 155 310 C160 258 166 214 170 186 C182 200 214 198 224 184 C227 214 231 258 235 310 C238 344 245 360 256 356 C268 352 271 326 267 286 C261 226 254 166 254 126 C254 82 234 46 194 46 Z"/>
-          <path class="hair-hi" d="M148 130 C143 184 138 242 136 290 C135 314 137 330 141 340 C136 316 138 278 141 238 C144 200 146 162 148 130 Z"/>
-          <g class="acc a-collar"><use href="#g-collar" transform="translate(194 192)"/></g>
-          <g class="acc a-cuffs">
-            <use href="#g-cuff" transform="translate(117 392)"/>
-            <use href="#g-cuff" transform="translate(245 392)"/>
-          </g>
-          <g class="acc a-rope"><use href="#g-rope" transform="translate(180 300)"/></g>
-          <g class="whip">
-            <g class="held" transform="translate(245 400) rotate(10)">
-            <g class="item item--whip">
-              <rect x="-24" y="-9" width="56" height="17" rx="8" fill="#141118" transform="rotate(34)"/>
-              <rect x="-16" y="-5" width="30" height="10" rx="5" fill="#2b2b36" transform="rotate(34)"/>
-              <path d="M32 24 C54 56 62 100 58 144" fill="none" stroke="#17111a" stroke-width="9" stroke-linecap="round"/>
-              <path d="M58 144 C55 178 44 204 28 220" fill="none" stroke="#17111a" stroke-width="6" stroke-linecap="round"/>
-              <path d="M28 220 C22 229 15 233 8 234" fill="none" stroke="#17111a" stroke-width="3" stroke-linecap="round"/>
-            </g>
-            <g class="item item--paddle">
-              <rect x="-6" y="-12" width="12" height="48" rx="6" fill="#141118"/>
-              <circle cx="0" cy="-12" r="6" fill="#9a9aa6"/>
-              <rect x="-20" y="34" width="40" height="90" rx="11" fill="#141118" stroke="#3a3a46" stroke-width="3"/>
-              <g fill="#3a3a46"><rect x="-12" y="50" width="7" height="28" rx="3"/><rect x="-3.5" y="50" width="7" height="28" rx="3"/><rect x="5" y="50" width="7" height="28" rx="3"/></g>
-            </g>
-            <g class="item item--flogger">
-              <rect x="-7" y="-14" width="14" height="54" rx="7" fill="#141118"/>
-              <circle cx="0" cy="-14" r="7" fill="#9a9aa6"/>
-              <g stroke="#17111a" stroke-width="4.5" stroke-linecap="round" fill="none">
-                <path d="M-8 40 C-22 78 -30 114 -32 146"/>
-                <path d="M-4 40 C-13 80 -17 118 -16 152"/>
-                <path d="M0 40 C-2 80 -3 120 -2 154"/>
-                <path d="M4 40 C10 80 13 118 12 150"/>
-                <path d="M8 40 C21 78 28 112 29 144"/>
-              </g>
-            </g>
-          </g>
-            <circle class="skin" cx="245" cy="397" r="11"/>
-          </g>
-        </g>
         </svg>
 
       <!-- la cara recortada del amigo -->
@@ -631,10 +550,21 @@
 
       <!-- pelo de adelante y orejas: van ENCIMA de la foto y tapan el recorte -->
       <svg class="avatar avatar--front" viewBox="0 -84 360 764" aria-hidden="true">
-        <g class="pose" data-pose="stand"><use class="headgear" href="#g-headgear"/></g>
-        <g class="pose" data-pose="kneel"><use class="headgear" href="#g-headgear" transform="translate(180 156) scale(1.09) translate(-180 -124)"/></g>
-        <g class="pose" data-pose="lying"><use class="headgear" href="#g-headgear" transform="translate(180 150) scale(1.045) translate(-180 -124)"/></g>
-        <g class="pose" data-pose="back"><use class="headgear" href="#g-headgear" transform="translate(194 118) translate(-180 -124)"/></g>
+        <g class="pose" data-pose="stand">
+          <g class="hairfront hairfront--long"><use class="hairfill" href="#g-hair-front-long"/></g>
+          <g class="hairfront hairfront--short"><use class="hairfill" href="#g-hair-front-short"/></g>
+          <use class="catears" href="#g-catears"/>
+        </g>
+        <g class="pose" data-pose="kneel">
+          <g class="hairfront hairfront--long"><use class="hairfill" href="#g-hair-front-long" transform="translate(0 32)"/></g>
+          <g class="hairfront hairfront--short"><use class="hairfill" href="#g-hair-front-short" transform="translate(0 32)"/></g>
+          <use class="catears" href="#g-catears" transform="translate(0 32)"/>
+        </g>
+        <g class="pose" data-pose="lying">
+          <g class="hairfront hairfront--long"><use class="hairfill" href="#g-hair-front-long" transform="translate(0 26)"/></g>
+          <g class="hairfront hairfront--short"><use class="hairfill" href="#g-hair-front-short" transform="translate(0 26)"/></g>
+          <use class="catears" href="#g-catears" transform="translate(0 26)"/>
+        </g>
       </svg>
     </button>
 
@@ -659,6 +589,10 @@
     <div class="picker__row">
       <span class="picker__label">POSE</span>
       <div class="chips" id="poseChips"></div>
+    </div>
+    <div class="picker__row">
+      <span class="picker__label">CUT</span>
+      <div class="chips" id="hairChips"></div>
     </div>
     <div class="picker__row">
       <span class="picker__label">HOLDS</span>
@@ -725,9 +659,13 @@
 
 <footer class="foot">
   <p>your photo <b>never</b> gets uploaded anywhere. it all happens inside your browser. ✌️</p>
+  <p class="foot__links">
+    <a class="foot__link foot__link--gh" href="https://github.com/richardmosqu/mydaddyfriend.lol" target="_blank" rel="noopener noreferrer">⭐ code on GitHub</a>
+    <a class="foot__link foot__link--x" href="https://x.com/Richardmosqued" target="_blank" rel="noopener noreferrer">𝕏 follow me</a>
+  </p>
   <p class="foot__weird">hits: 0000<span id="hits">01</span> · last update: never · best viewed in 800x600</p>
 </footer>
 
-<script src="app.js?v=12" defer></script>
+<script src="app.js?v=16" defer></script>
 </body>
 </html>

@@ -6,6 +6,7 @@ así que anda igual en todos los navegadores.
 | Archivo | Qué es |
 |---|---|
 | `whip.mp3` | El latigazo de cada click |
+| *(opcional)* `slap.mp3` | El golpe. Si no está, se sintetiza |
 | `oh-yeah-daddy.mp3` | Frase |
 | `ahh.mp3` | Frase |
 | `daddy-chill.mp3` | Frase |
@@ -13,17 +14,35 @@ así que anda igual en todos los navegadores.
 | `moan-anime.mp3` | Gemido |
 | `money-rain.mp3` | La canción del Money rain (14 s) |
 
-`voice.json` es el que manda: `whip` dice cuál es el latigazo, y cada entrada de
-`clips` dice qué archivo suena y qué texto aparece en el globo.
+`voice.json` es el que manda: `whip` dice cuál es el latigazo, `slap` (opcional)
+cuál es el golpe, y cada entrada de `clips` dice qué archivo suena y qué texto
+aparece en el globo.
 
 ```json
 {
   "whip": "whip.mp3",
+  "slap": "slap.mp3",
   "clips": [
     { "file": "oh-yeah-daddy.mp3", "text": "OH YEAH DADDY" }
   ]
 }
 ```
+
+## El golpe (slap)
+
+El latigazo son dos cosas distintas: el chasquido del látigo en el aire y el slap
+de cuando pega. El chasquido sale del `whip.mp3`; el slap está sintetizado —tres
+capas: el "chas" de la piel, el cuerpo grave y un poco de aire agudo— y suena
+justo encima del golpe, con un poco de variación de tono para que dos clicks
+seguidos no suenen calcados. Si dejás un `slap.mp3` y lo declarás en `voice.json`,
+se usa ese en vez del sintetizado.
+
+**No hace falta recortarle el silencio del principio a ningún archivo.** Al
+cargarlos se busca el pico y el primer sample que suena; al tocarlos se saltea el
+silencio y con el pico se sabe en qué milisegundo pega, para encimarle el slap y
+meter la frase justo después. El `whip.mp3` de ahora trae 346 ms de silencio
+antes del chasquido: sin esto, el latigazo llegaba casi medio segundo después del
+click y parecía que la página iba en cámara lenta.
 
 ## Agregar o cambiar sonidos
 

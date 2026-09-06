@@ -120,7 +120,7 @@ body{
 
 /* ---------- cartel de nombre estilo videojuego ---------- */
 .nametag{
-  position:absolute;left:0;right:0;top:0;height:12.4%;
+  position:absolute;left:0;right:0;top:0;height:8%;
   display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
   gap:.28rem;z-index:4;
 }
@@ -212,16 +212,22 @@ body{
 .pose{display:none}
 .stage[data-pose="stand"] .pose[data-pose="stand"],
 .stage[data-pose="kneel"] .pose[data-pose="kneel"],
-.stage[data-pose="lying"] .pose[data-pose="lying"],
-.stage[data-pose="back"]  .pose[data-pose="back"]{display:block}
+.stage[data-pose="lying"] .pose[data-pose="lying"]{display:block}
 
 /* la caja de la cara sigue a la cabeza de cada pose */
-.stage[data-pose="stand"] .head{left:34.444%;top:19.895%;width:31.111%;height:14.660%}
-.stage[data-pose="kneel"] .head{left:33.056%;top:23.429%;width:33.889%;height:15.969%}
-.stage[data-pose="lying"] .head{left:33.889%;top:22.775%;width:32.5%;height:15.314%}
-.stage[data-pose="back"]  .head{left:38.333%;top:19.110%;width:31.111%;height:14.660%}
+.stage[data-pose="stand"] .head{left:28.222%;top:16.963%;width:43.556%;height:20.524%}
+.stage[data-pose="kneel"] .head{left:28.222%;top:21.152%;width:43.556%;height:20.524%}
+.stage[data-pose="lying"] .head{left:28.222%;top:20.366%;width:43.556%;height:20.524%}
 
-.headgear{fill:var(--hair)}
+.hairfill{fill:var(--hair)}
+.hairhi{fill:var(--hair-hi);opacity:.5}
+
+/* peinado: largo, corto o pelado */
+.hairback,.hairfront{display:none}
+.stage[data-hair="long"] .hairback--long,
+.stage[data-hair="long"] .hairfront--long,
+.stage[data-hair="short"] .hairback--short,
+.stage[data-hair="short"] .hairfront--short{display:block}
 
 /* ---------- accesorios ---------- */
 .acc{display:none}
@@ -590,6 +596,25 @@ body.has-whip input,body.has-whip select,body.has-whip textarea{cursor:auto}
 /* ---------- footer ---------- */
 .foot{text-align:center;margin-top:1.6rem;padding:0 1rem;font-size:.8rem;color:#6b5f4c;position:relative;z-index:2}
 .foot p{margin:.25rem 0}
+.foot__links{
+  display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;
+  margin:.7rem 0 .5rem;
+}
+.foot__link{
+  display:inline-flex;align-items:center;gap:.3rem;
+  font-family:var(--comic);font-size:.85rem;text-decoration:none;
+  color:#fff;background:#1f2328;
+  border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);
+  padding:.3rem .7rem;
+  transition:transform .08s,box-shadow .08s;
+}
+.foot__link:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+.foot__link:active{transform:translate(4px,4px);box-shadow:0 0 0 var(--ink)}
+.foot__link--gh{transform:rotate(-1.2deg)}
+.foot__link--gh:hover{transform:rotate(-1.2deg) translate(-1px,-1px)}
+.foot__link--x{background:#000;transform:rotate(1.2deg)}
+.foot__link--x:hover{transform:rotate(1.2deg) translate(-1px,-1px)}
+
 .foot__weird{font-family:ui-monospace,"Courier New",monospace;font-size:.7rem;opacity:.65}
 
 /* ---------- celular: menos aire y menos alto ---------- */
@@ -606,6 +631,7 @@ body.has-whip input,body.has-whip select,body.has-whip textarea{cursor:auto}
   .controls{gap:.4rem;margin:.6rem 0 .2rem}
   .counter{margin:.6rem 0 .1rem;font-size:.75rem}
   .foot{margin-top:1rem}
+  .foot__link{font-size:.78rem;padding:.26rem .55rem;border-width:2px;box-shadow:3px 3px 0 var(--ink)}
   .bubble{font-size:1rem;padding:.35rem .7rem .45rem;right:-4%;top:16%;max-width:72%}
 }
 
