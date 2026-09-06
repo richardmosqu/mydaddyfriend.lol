@@ -1,42 +1,35 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>mydaddyfriend.lol</title>
-<meta name="description" content="Subí la foto de tu amigo, pegásela en la cara al muñeco, ponele un nombre y apretalo. Todo pasa dentro de tu navegador.">
+<meta name="description" content="Put your friend's face on the doll, give it a name and smack it. Everything happens inside your browser.">
 <meta name="theme-color" content="#ffe000">
 <meta property="og:title" content="mydaddyfriend.lol">
-<meta property="og:description" content="Ponele la cara de tu amigo al muñeco y apretalo. No preguntes.">
+<meta property="og:description" content="Put your friend's face on the doll and smack it. Don't ask.">
 <meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23ffe000'/%3E%3Ccircle cx='16' cy='15' r='11' fill='%23ffeccc' stroke='%2314110f' stroke-width='2'/%3E%3Cpath d='M9 13q3-3 6 0M17 13q3-3 6 0' stroke='%2314110f' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3Cellipse cx='16' cy='21' rx='4' ry='5' fill='%233d0a17'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23ffe000'/%3E%3Cpath d='M6 12 4 3l9 5zM26 12l2-9-9 5z' fill='%2314110f'/%3E%3Cellipse cx='16' cy='17' rx='9' ry='11' fill='%23eeb489' stroke='%2314110f' stroke-width='2'/%3E%3Cpath d='M10 15q3-3 5 0M17 15q3-3 5 0' stroke='%2314110f' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3Cellipse cx='16' cy='23' rx='3.5' ry='4.5' fill='%233d0a17'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <div class="ticker" aria-hidden="true">
   <div class="ticker__track">
-    <span>⚠️ ESTE SITIO NO TIENE NINGÚN PROPÓSITO ⚠️ TU FOTO NUNCA SALE DE TU NAVEGADOR ⚠️ HECHO CON AMOR Y CONFUSIÓN ⚠️ NO SE LO MUESTRES A TU MAMÁ ⚠️ 100% ARTESANAL ⚠️ </span>
-    <span>⚠️ ESTE SITIO NO TIENE NINGÚN PROPÓSITO ⚠️ TU FOTO NUNCA SALE DE TU NAVEGADOR ⚠️ HECHO CON AMOR Y CONFUSIÓN ⚠️ NO SE LO MUESTRES A TU MAMÁ ⚠️ 100% ARTESANAL ⚠️ </span>
+    <span>⚠️ THIS SITE HAS NO PURPOSE ⚠️ YOUR PHOTO NEVER LEAVES YOUR BROWSER ⚠️ MADE WITH LOVE AND CONFUSION ⚠️ DON'T SHOW THIS TO YOUR MOM ⚠️ 100% HANDMADE ⚠️ </span>
+    <span>⚠️ THIS SITE HAS NO PURPOSE ⚠️ YOUR PHOTO NEVER LEAVES YOUR BROWSER ⚠️ MADE WITH LOVE AND CONFUSION ⚠️ DON'T SHOW THIS TO YOUR MOM ⚠️ 100% HANDMADE ⚠️ </span>
   </div>
 </div>
 
 <div class="floaters" id="floaters" aria-hidden="true"></div>
 
 <header class="top">
-  <div class="live"><i></i> EN VIVO</div>
+  <div class="live"><i></i> LIVE</div>
   <h1 class="logo">my<em>daddy</em>friend<b>.lol</b></h1>
-  <p class="tagline">poné la cara de tu amigo · ponele un nombre · apretalo</p>
+  <p class="tagline">put your friend's face on it · name it · smack it</p>
 </header>
 
 <main class="main">
-
-  <div class="nameplate">
-    <span class="nameplate__pin">📌</span>
-    <input id="nameInput" class="nameplate__input" type="text" maxlength="20"
-           placeholder="NOMBRE DEL AMIGO" autocomplete="off" spellcheck="false"
-           aria-label="Nombre del muñeco">
-  </div>
 
   <div class="bubblewrap">
     <div class="bubble" id="bubble" role="status" aria-live="polite"></div>
@@ -46,155 +39,259 @@
   <section class="stage" id="stage">
     <div class="sunburst" aria-hidden="true"></div>
 
-    <button class="guy" id="guy" type="button" aria-label="Apretar al muñeco">
-      <svg class="dude" viewBox="0 0 360 460" aria-hidden="true">
-        <ellipse class="dude__shadow" cx="180" cy="447" rx="100" ry="12"/>
+    <!-- cartel de nombre flotante, estilo videojuego -->
+    <div class="nametag" id="nametag">
+      <div class="nametag__row">
+        <span class="nametag__lvl" id="lvl">LV.1</span>
+        <input id="nameInput" class="nametag__input" type="text" maxlength="16"
+               placeholder="CLICK TO NAME" autocomplete="off" spellcheck="false"
+               aria-label="Character name">
+        <span class="nametag__pen" aria-hidden="true">✏️</span>
+      </div>
+      <div class="nametag__bar"><i id="xpbar"></i></div>
+    </div>
 
-        <!-- piernas y brazos: capa de tinta -->
+    <button class="guy" id="guy" type="button" aria-label="Smack the doll">
+
+      <!-- todo lo que va DETRÁS de la cara -->
+      <svg class="avatar" viewBox="0 -84 360 764" aria-hidden="true">
+        <defs>
+          <pattern id="lace" width="6" height="6" patternUnits="userSpaceOnUse">
+            <rect width="6" height="6" fill="#0e0e12"/>
+            <circle cx="3" cy="3" r="1.5" fill="#353542"/>
+          </pattern>
+          <linearGradient id="stockg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2b2b36"/>
+            <stop offset="1" stop-color="#0d0d11"/>
+          </linearGradient>
+        </defs>
+
+        <ellipse class="ground" cx="180" cy="660" rx="76" ry="10"/>
+
+        <!-- pelo largo, detrás de todo -->
+        <path class="hair" d="M180 54 C144 54 122 86 122 128 C122 162 117 214 112 268 C109 306 112 334 122 340 C132 346 139 331 142 300 C146 256 150 218 152 192 C162 204 198 204 208 192 C210 218 214 256 218 300 C221 331 228 346 238 340 C248 334 251 306 248 268 C243 214 238 162 238 128 C238 86 216 54 180 54 Z"/>
+        <path class="hair-hi" d="M136 132 C131 186 126 244 124 292 C123 316 125 332 129 342 C124 318 126 280 129 240 C132 202 134 164 136 132 Z"/>
+
+        <!-- brazo izquierdo, detrás del torso -->
         <g class="ink">
-          <path d="M156 336 C152 372 146 398 141 424"/>
-          <path d="M204 336 C208 372 214 398 219 424"/>
-          <path d="M120 250 C84 264 70 302 94 324"/>
-          <path d="M240 250 C276 264 290 302 266 324"/>
+          <path d="M141 232 C128 252 118 276 115 300" stroke-width="32"/>
+          <path d="M115 300 C113 324 114 350 116 370" stroke-width="27"/>
+          <path d="M116 370 L118 386" stroke-width="23"/>
         </g>
-        <!-- pies -->
-        <ellipse class="skin" cx="134" cy="428" rx="27" ry="14"/>
-        <ellipse class="skin" cx="226" cy="428" rx="27" ry="14"/>
-        <!-- piernas y brazos: relleno -->
         <g class="limb">
-          <path d="M156 336 C152 372 146 398 141 424"/>
-          <path d="M204 336 C208 372 214 398 219 424"/>
-          <path d="M120 250 C84 264 70 302 94 324"/>
-          <path d="M240 250 C276 264 290 302 266 324"/>
+          <path d="M141 232 C128 252 118 276 115 300" stroke-width="24"/>
+          <path d="M115 300 C113 324 114 350 116 370" stroke-width="19"/>
+          <path d="M116 370 L118 386" stroke-width="15"/>
         </g>
-        <!-- manos -->
-        <circle class="skin" cx="94" cy="324" r="17"/>
-        <circle class="skin" cx="266" cy="324" r="17"/>
+        <circle class="skin" cx="119" cy="395" r="11"/>
+
+        <!-- piernas: tres tramos que se afinan -->
+        <g class="ink">
+          <path d="M166 410 C160 440 156 468 155 492" stroke-width="52"/>
+          <path d="M155 492 C153 516 151 544 150 566" stroke-width="40"/>
+          <path d="M150 566 C149 592 148 612 147 630" stroke-width="29"/>
+          <path d="M194 410 C200 440 204 468 205 492" stroke-width="52"/>
+          <path d="M205 492 C207 516 209 544 210 566" stroke-width="40"/>
+          <path d="M210 566 C211 592 212 612 213 630" stroke-width="29"/>
+        </g>
+        <g class="limb">
+          <path d="M166 410 C160 440 156 468 155 492" stroke-width="44"/>
+          <path d="M155 492 C153 516 151 544 150 566" stroke-width="32"/>
+          <path d="M150 566 C149 592 148 612 147 630" stroke-width="21"/>
+          <path d="M194 410 C200 440 204 468 205 492" stroke-width="44"/>
+          <path d="M205 492 C207 516 209 544 210 566" stroke-width="32"/>
+          <path d="M210 566 C211 592 212 612 213 630" stroke-width="21"/>
+        </g>
+        <ellipse class="skin" cx="146" cy="642" rx="18" ry="11"/>
+        <ellipse class="skin" cx="214" cy="642" rx="18" ry="11"/>
+
+        <!-- medias hasta el muslo -->
+        <g class="stocking">
+          <path d="M156 468 L155 492" stroke-width="44"/>
+          <path d="M155 492 C153 516 151 544 150 566" stroke-width="34"/>
+          <path d="M150 566 C149 592 148 612 147 632" stroke-width="23"/>
+          <path d="M204 468 L205 492" stroke-width="44"/>
+          <path d="M205 492 C207 516 209 544 210 566" stroke-width="34"/>
+          <path d="M210 566 C211 592 212 612 213 632" stroke-width="23"/>
+        </g>
+        <g class="stocking-band">
+          <path d="M156 462 L156 472" stroke-width="47"/>
+          <path d="M204 462 L204 472" stroke-width="47"/>
+        </g>
+        <ellipse class="stocking-foot" cx="146" cy="642" rx="18" ry="11"/>
+        <ellipse class="stocking-foot" cx="214" cy="642" rx="18" ry="11"/>
+
+        <!-- torso -->
+        <path class="skin" d="M180 202 C160 202 143 213 138 233 C133 254 145 288 148 316 C151 344 137 372 135 396 C133 422 148 438 180 438 C212 438 227 422 225 396 C223 372 209 344 212 316 C215 288 227 254 222 233 C217 213 200 202 180 202 Z"/>
+        <ellipse class="skin-soft" cx="162" cy="254" rx="26" ry="23"/>
+        <ellipse class="skin-soft" cx="198" cy="254" rx="26" ry="23"/>
+        <ellipse class="shade" cx="180" cy="326" rx="3.5" ry="5.5"/>
 
         <!-- cuello -->
-        <rect class="skin" x="163" y="184" width="34" height="44" rx="12"/>
+        <path class="skin" d="M164 148 L164 200 C164 212 196 212 196 200 L196 148 Z"/>
+        <path class="shade" d="M164 160 C173 178 187 178 196 160 L196 148 L164 148 Z"/>
 
-        <!-- remera -->
-        <path class="shirt" d="M112 216 C102 268 106 316 120 346 C180 368 240 358 244 346 C258 316 258 268 248 216 C214 200 146 200 112 216 Z"/>
-        <path class="stitch" d="M124 336 q14 8 28 4 q14 -4 28 2 q14 6 28 -2 q14 -8 26 -2"/>
-        <text class="shirttext" x="181" y="292" text-anchor="middle" transform="rotate(-4 181 292)">DADDY</text>
+        <!-- cabeza, debajo de la foto -->
+        <ellipse class="skin" cx="180" cy="124" rx="44" ry="52"/>
+        <ellipse class="ear" cx="137" cy="130" rx="9" ry="14"/>
+        <ellipse class="ear" cx="223" cy="130" rx="9" ry="14"/>
 
-        <!-- orejas -->
-        <ellipse class="skin" cx="88" cy="128" rx="16" ry="24"/>
-        <ellipse class="skin" cx="272" cy="128" rx="16" ry="24"/>
-
-        <!-- antenas con ojos saltones -->
-        <path class="antenna" d="M150 38 C138 20 132 14 126 12"/>
-        <path class="antenna" d="M210 38 C222 20 228 14 234 12"/>
-        <g class="googly">
-          <circle class="googly__ball" cx="126" cy="14" r="14"/>
-          <circle class="googly__pupil" cx="126" cy="14" r="6"/>
+        <!-- arnés de encaje -->
+        <g class="strap">
+          <path d="M147 238 L166 208"/>
+          <path d="M213 238 L194 208"/>
+          <path d="M180 236 L180 300"/>
+          <path d="M144 290 C158 302 202 302 216 290"/>
+          <path d="M146 330 C161 342 199 342 214 330"/>
+          <path d="M137 382 C155 396 205 396 223 382"/>
         </g>
-        <g class="googly googly--b">
-          <circle class="googly__ball" cx="234" cy="14" r="14"/>
-          <circle class="googly__pupil" cx="234" cy="14" r="6"/>
+        <path class="lace" d="M140 236 L178 234 C175 262 168 280 161 291 C151 279 143 260 140 236 Z"/>
+        <path class="lace" d="M220 236 L182 234 C185 262 192 280 199 291 C209 279 217 260 220 236 Z"/>
+        <path class="lace" d="M152 372 C158 418 202 418 208 372 Z"/>
+        <g class="strap">
+          <path d="M154 390 L154 468"/>
+          <path d="M172 394 L167 468"/>
+          <path d="M206 390 L206 468"/>
+          <path d="M188 394 L193 468"/>
         </g>
 
-        <!-- cabeza -->
-        <circle class="head-disc" cx="180" cy="120" r="92"/>
+        <!-- gargantilla -->
+        <rect class="choker" x="160" y="186" width="40" height="13" rx="6"/>
+        <path class="strap" d="M180 199 L180 208"/>
+        <circle class="ring" cx="180" cy="214" r="6.5"/>
+
+        <!-- brazo derecho con el látigo -->
+        <g class="whip" id="whip">
+          <g class="ink">
+            <path d="M219 232 C232 252 242 276 245 300" stroke-width="32"/>
+            <path d="M245 300 C247 324 246 350 244 370" stroke-width="27"/>
+            <path d="M244 370 L242 386" stroke-width="23"/>
+          </g>
+          <g class="limb">
+            <path d="M219 232 C232 252 242 276 245 300" stroke-width="24"/>
+            <path d="M245 300 C247 324 246 350 244 370" stroke-width="19"/>
+            <path d="M244 370 L242 386" stroke-width="15"/>
+          </g>
+          <g transform="rotate(36 242 396)">
+            <rect class="handle" x="218" y="387" width="58" height="18" rx="9"/>
+            <rect class="grip" x="225" y="391" width="30" height="10" rx="5"/>
+            <rect class="handle-tip" x="269" y="390" width="11" height="12" rx="5"/>
+          </g>
+          <path class="lash lash--1" d="M279 418 C300 450 310 496 306 540"/>
+          <path class="lash lash--2" d="M306 540 C303 574 292 600 276 616"/>
+          <path class="lash lash--3" d="M276 616 C270 625 263 629 256 630"/>
+          <circle class="skin" cx="242" cy="394" r="11"/>
+        </g>
       </svg>
 
+      <!-- la cara recortada del amigo -->
       <div class="head">
-        <div class="sticker">
-          <div class="face"><canvas id="faceCanvas" width="560" height="560"></canvas></div>
-          <div class="fx" id="fx" aria-hidden="true">
-            <div class="lid" id="eyeL">
-              <svg viewBox="0 0 100 70" preserveAspectRatio="none">
-                <defs>
-                  <radialGradient id="gEyeL"><stop offset=".68" class="s1"/><stop offset="1" class="s0"/></radialGradient>
-                  <radialGradient id="dEyeL" cx="50%" cy="26%" r="62%"><stop offset="0" class="d1"/><stop offset="1" class="d0"/></radialGradient>
-                </defs>
-                <ellipse cx="50" cy="35" rx="50" ry="35" fill="url(#gEyeL)"/>
-                <ellipse cx="50" cy="35" rx="50" ry="35" fill="url(#dEyeL)"/>
-                <path d="M18 45 Q50 15 82 45" fill="none" stroke="#2b141a" stroke-width="8" stroke-linecap="round"/>
-                <path d="M21 48 l-7 9M50 31 l0 12M79 48 l7 9" stroke="#2b141a" stroke-width="6" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div class="lid" id="eyeR">
-              <svg viewBox="0 0 100 70" preserveAspectRatio="none">
-                <defs>
-                  <radialGradient id="gEyeR"><stop offset=".68" class="s1"/><stop offset="1" class="s0"/></radialGradient>
-                  <radialGradient id="dEyeR" cx="50%" cy="26%" r="62%"><stop offset="0" class="d1"/><stop offset="1" class="d0"/></radialGradient>
-                </defs>
-                <ellipse cx="50" cy="35" rx="50" ry="35" fill="url(#gEyeR)"/>
-                <ellipse cx="50" cy="35" rx="50" ry="35" fill="url(#dEyeR)"/>
-                <path d="M18 45 Q50 15 82 45" fill="none" stroke="#2b141a" stroke-width="8" stroke-linecap="round"/>
-                <path d="M21 48 l-7 9M50 31 l0 12M79 48 l7 9" stroke="#2b141a" stroke-width="6" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div class="mouth" id="mouth">
-              <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-                <defs>
-                  <radialGradient id="gMouth"><stop offset=".72" class="s1"/><stop offset="1" class="s0"/></radialGradient>
-                </defs>
-                <ellipse cx="50" cy="50" rx="50" ry="50" fill="url(#gMouth)"/>
-                <ellipse cx="50" cy="52" rx="28" ry="36" fill="#3d0a17" stroke="#8a1b30" stroke-width="4"/>
-                <path d="M26 38 Q50 24 74 38 Q50 33 26 38 Z" fill="#fff" opacity=".9"/>
-                <ellipse cx="50" cy="76" rx="17" ry="12" fill="#ff5c8a"/>
-                <ellipse cx="41" cy="45" rx="6" ry="4" fill="#fff" opacity=".3"/>
-              </svg>
-            </div>
-            <div class="blush blush--l"></div>
-            <div class="blush blush--r"></div>
-            <div class="drop">💧</div>
+        <div class="face"><canvas id="faceCanvas" width="560" height="560"></canvas></div>
+        <div class="fx" id="fx" aria-hidden="true">
+          <div class="lid" id="eyeL">
+            <svg viewBox="0 0 100 70" preserveAspectRatio="none">
+              <defs>
+                <radialGradient id="gEyeL"><stop offset=".68" class="s1"/><stop offset="1" class="s0"/></radialGradient>
+                <radialGradient id="dEyeL" cx="50%" cy="26%" r="62%"><stop offset="0" class="d1"/><stop offset="1" class="d0"/></radialGradient>
+              </defs>
+              <ellipse cx="50" cy="35" rx="50" ry="35" fill="url(#gEyeL)"/>
+              <ellipse cx="50" cy="35" rx="50" ry="35" fill="url(#dEyeL)"/>
+              <path d="M18 45 Q50 15 82 45" fill="none" stroke="#2b141a" stroke-width="8" stroke-linecap="round"/>
+              <path d="M21 48 l-7 9M50 31 l0 12M79 48 l7 9" stroke="#2b141a" stroke-width="6" stroke-linecap="round"/>
+            </svg>
           </div>
+          <div class="lid" id="eyeR">
+            <svg viewBox="0 0 100 70" preserveAspectRatio="none">
+              <defs>
+                <radialGradient id="gEyeR"><stop offset=".68" class="s1"/><stop offset="1" class="s0"/></radialGradient>
+                <radialGradient id="dEyeR" cx="50%" cy="26%" r="62%"><stop offset="0" class="d1"/><stop offset="1" class="d0"/></radialGradient>
+              </defs>
+              <ellipse cx="50" cy="35" rx="50" ry="35" fill="url(#gEyeR)"/>
+              <ellipse cx="50" cy="35" rx="50" ry="35" fill="url(#dEyeR)"/>
+              <path d="M18 45 Q50 15 82 45" fill="none" stroke="#2b141a" stroke-width="8" stroke-linecap="round"/>
+              <path d="M21 48 l-7 9M50 31 l0 12M79 48 l7 9" stroke="#2b141a" stroke-width="6" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="mouth" id="mouth">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+              <defs>
+                <radialGradient id="gMouth"><stop offset=".72" class="s1"/><stop offset="1" class="s0"/></radialGradient>
+              </defs>
+              <ellipse cx="50" cy="50" rx="50" ry="50" fill="url(#gMouth)"/>
+              <ellipse cx="50" cy="52" rx="26" ry="34" fill="#3d0a17" stroke="#8a1b30" stroke-width="4"/>
+              <path d="M28 39 Q50 26 72 39 Q50 34 28 39 Z" fill="#fff" opacity=".9"/>
+              <ellipse cx="50" cy="75" rx="16" ry="11" fill="#ff5c8a"/>
+              <ellipse cx="41" cy="45" rx="6" ry="4" fill="#fff" opacity=".3"/>
+            </svg>
+          </div>
+          <div class="blush blush--l"></div>
+          <div class="blush blush--r"></div>
+          <div class="drop">💧</div>
         </div>
 
         <div class="head__empty" id="headEmpty">
           <div class="head__ring"></div>
           <div class="head__plus">＋</div>
-          <div class="head__hint">poné<br>una cara</div>
+          <div class="head__hint">add a<br>face</div>
         </div>
       </div>
+
+      <!-- pelo de adelante y orejas: van ENCIMA de la foto y tapan el recorte -->
+      <svg class="avatar avatar--front" viewBox="0 -84 360 764" aria-hidden="true">
+        <path class="hair" d="M146 68 C133 84 128 112 130 146 C132 178 136 208 141 236 C139 204 137 178 139 152 C141 122 146 96 156 76 Z"/>
+        <path class="hair" d="M214 68 C227 84 232 112 230 146 C228 178 224 208 219 236 C221 204 223 178 221 152 C219 122 214 96 204 76 Z"/>
+        <path class="hair" d="M140 100 C142 74 158 60 180 60 C202 60 218 74 220 100 C209 80 197 71 180 71 C163 71 151 80 140 100 Z"/>
+        <path class="band" d="M134 96 C146 62 214 62 226 96"/>
+        <path class="ear-cat" d="M136 90 L124 34 L174 66 Z"/>
+        <path class="ear-cat" d="M224 90 L236 34 L186 66 Z"/>
+        <path class="ear-in" d="M141 82 L134 48 L162 66 Z"/>
+        <path class="ear-in" d="M219 82 L226 48 L198 66 Z"/>
+      </svg>
     </button>
 
     <div class="particles" id="particles" aria-hidden="true"></div>
   </section>
   </div>
 
-  <div class="counter"><span>GEMIDOS</span><b id="count">000000</b></div>
+  <div class="counter"><span>MOANS</span><b id="count">000000</b></div>
 
   <div class="controls">
     <input type="file" id="fileInput" accept="image/*" hidden>
-    <button class="btn btn--main" id="pickBtn" type="button">📸 poné una cara</button>
-    <button class="btn" id="adjustBtn" type="button" aria-expanded="false">🎚️ ajustar</button>
-    <button class="btn" id="soundBtn" type="button" aria-pressed="true">🔊 sonido</button>
-    <button class="btn btn--ghost" id="resetBtn" type="button">🗑️ borrar</button>
+    <button class="btn btn--main" id="pickBtn" type="button">📸 add a face</button>
+    <button class="btn" id="nameBtn" type="button">✏️ name it</button>
+    <button class="btn" id="adjustBtn" type="button" aria-expanded="false">🎚️ adjust</button>
+    <button class="btn" id="soundBtn" type="button" aria-pressed="true">🔊 sound</button>
+    <button class="btn btn--ghost" id="resetBtn" type="button">🗑️ clear</button>
   </div>
 
-  <p class="status" id="status">arrastrá una foto acá, o pegala con Ctrl+V</p>
+  <p class="status" id="status">drop a photo here, or paste one with Ctrl+V</p>
 
   <section class="panel" id="panel" hidden>
     <div class="panel__bar">
-      <span>ajustes_raros.exe</span>
-      <button class="panel__x" id="panelX" type="button" aria-label="Cerrar ajustes">✕</button>
+      <span>weird_settings.exe</span>
+      <button class="panel__x" id="panelX" type="button" aria-label="Close settings">✕</button>
     </div>
     <div class="panel__body">
-      <p class="panel__note">si la cara quedó torcida, acomodala vos (se ve la expresión mientras ajustás)</p>
+      <p class="panel__note">if the face came out crooked, line it up yourself (the expression stays on while you adjust)</p>
       <div class="grid">
         <label>zoom <input type="range" id="a_zoom" min="0.5" max="2.5" step="0.01" value="1"></label>
-        <label>izq / der <input type="range" id="a_dx" min="-0.4" max="0.4" step="0.005" value="0"></label>
-        <label>arriba / abajo <input type="range" id="a_dy" min="-0.4" max="0.4" step="0.005" value="0"></label>
-        <label>girar <input type="range" id="a_rot" min="-45" max="45" step="0.5" value="0"></label>
-        <label>altura ojos <input type="range" id="a_eyeY" min="-0.18" max="0.18" step="0.005" value="0"></label>
-        <label>separación ojos <input type="range" id="a_eyeGap" min="0.5" max="1.7" step="0.01" value="1"></label>
-        <label>altura boca <input type="range" id="a_mouthY" min="-0.2" max="0.2" step="0.005" value="0"></label>
-        <label>tamaño boca <input type="range" id="a_mouthS" min="0.5" max="1.9" step="0.01" value="1"></label>
+        <label>left / right <input type="range" id="a_dx" min="-0.4" max="0.4" step="0.005" value="0"></label>
+        <label>up / down <input type="range" id="a_dy" min="-0.4" max="0.4" step="0.005" value="0"></label>
+        <label>rotate <input type="range" id="a_rot" min="-45" max="45" step="0.5" value="0"></label>
+        <label>eye height <input type="range" id="a_eyeY" min="-0.18" max="0.18" step="0.005" value="0"></label>
+        <label>eye spacing <input type="range" id="a_eyeGap" min="0.5" max="1.7" step="0.01" value="1"></label>
+        <label>mouth height <input type="range" id="a_mouthY" min="-0.2" max="0.2" step="0.005" value="0"></label>
+        <label>mouth size <input type="range" id="a_mouthS" min="0.5" max="1.9" step="0.01" value="1"></label>
       </div>
-      <button class="btn btn--ghost" id="panelReset" type="button">↺ volver al automático</button>
+      <button class="btn btn--ghost" id="panelReset" type="button">↺ back to auto</button>
     </div>
   </section>
 
 </main>
 
 <footer class="foot">
-  <p>tu foto <b>nunca</b> se sube a ningún lado. todo pasa dentro de tu navegador. ✌️</p>
-  <p class="foot__weird">visitas: 0000<span id="hits">01</span> · último update: nunca · best viewed in 800x600</p>
+  <p>your photo <b>never</b> gets uploaded anywhere. it all happens inside your browser. ✌️</p>
+  <p class="foot__weird">hits: 0000<span id="hits">01</span> · last update: never · best viewed in 800x600</p>
 </footer>
 
 <script src="app.js" defer></script>

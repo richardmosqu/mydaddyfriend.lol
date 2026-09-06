@@ -3,19 +3,20 @@
 (() => {
   'use strict';
 
-  const S = 560;                                  // lado de la textura de la cara (px)
-  const TARGET = { x: 0.50, y: 0.42, dist: 0.34 }; // dónde queremos los ojos dentro de la textura
-  const KEY = 'mdf.v1';
+  const S = 560;                                   // lado de la textura de la cara (px)
+  const TARGET = { x: 0.50, y: 0.45, dist: 0.30 }; // dónde caen los ojos dentro de la máscara de cara
+  const KEY = 'mdf.v2';
   const MODELS = 'vendor/face-api/models';
 
   const PHRASES = [
     'YES DADDY', "YOU'RE MY DADDY", 'I LOVE THIS', 'OH MY GOD DADDY',
-    'MORE DADDY MORE', 'SÍ PAPI', 'THANK YOU DADDY', 'AAAAH DADDY',
+    'MORE DADDY MORE', 'THANK YOU DADDY', 'AAAAH DADDY', 'HARDER DADDY',
     'DADDY DADDY DADDY', 'I LIVE FOR THIS', 'YES YES YES', 'MMMM DADDY',
-    'YOU ARE THE BEST DADDY', 'PLEASE DADDY', 'AY PAPI', "DON'T STOP DADDY"
+    'YOU ARE THE BEST DADDY', 'PLEASE DADDY', "DON'T STOP DADDY", 'ONE MORE TIME DADDY'
   ];
   const EMOJI = ['💗', '✨', '💦', '😩', '⭐', '💫', '🔥', '💕', '🫠'];
   const FLOATERS = ['🍌', '👁️', '🧀', '🐛', '🫧', '🦷', '🍕', '👽', '🧦', '🪱', '🥑', '🛸', '🦶', '💅'];
+  const IDLE_HINT = 'drop a photo here, or paste one with Ctrl+V';
 
   const $ = (sel, root = document) => root.querySelector(sel);
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -25,11 +26,13 @@
   const el = {
     stage: $('#stage'), guy: $('#guy'), canvas: $('#faceCanvas'), fx: $('#fx'),
     eyeL: $('#eyeL'), eyeR: $('#eyeR'), mouth: $('#mouth'),
-    bubble: $('#bubble'), name: $('#nameInput'), file: $('#fileInput'),
+    bubble: $('#bubble'), name: $('#nameInput'), nametag: $('#nametag'),
+    lvl: $('#lvl'), xp: $('#xpbar'), file: $('#fileInput'),
     count: $('#count'), status: $('#status'), panel: $('#panel'),
     particles: $('#particles'), floaters: $('#floaters'),
-    pick: $('#pickBtn'), adjust: $('#adjustBtn'), sound: $('#soundBtn'),
-    reset: $('#resetBtn'), panelX: $('#panelX'), panelReset: $('#panelReset')
+    pick: $('#pickBtn'), nameBtn: $('#nameBtn'), adjust: $('#adjustBtn'),
+    sound: $('#soundBtn'), reset: $('#resetBtn'),
+    panelX: $('#panelX'), panelReset: $('#panelReset')
   };
 
   const ctx = el.canvas.getContext('2d', { willReadFrequently: true });
@@ -37,15 +40,15 @@
   const DEFAULT_ADJ = { zoom: 1, dx: 0, dy: 0, rot: 0, eyeY: 0, eyeGap: 1, mouthY: 0, mouthS: 1 };
 
   const state = {
-    img: null,          // HTMLImageElement con la foto original (reducida)
+    img: null,          // la foto original (ya reducida)
     src: null,          // dataURL de esa foto
     det: null,          // ojos/boca en coordenadas de la foto
     geom: null,         // dónde quedó cada rasgo dentro de la textura
     adj: { ...DEFAULT_ADJ },
-    skin: null,
-    name: '',
-    count: 0,
-    sound: true
+    skin: null,         // color de piel del centro de la cara
+    skinEdge: null,     // color del borde de la cara -> pinta el cuerpo del avatar
+    hair: null,         // color de pelo muestreado -> pinta el pelo del avatar
+    name: '', count: 0, sound: true
   };
 
   const sliders = {
@@ -58,7 +61,8 @@
   function save() {
     try {
       localStorage.setItem(KEY, JSON.stringify({
-        src: state.src, det: state.det, adj: state.adj, skin: state.skin,
+        src: state.src, det: state.det, adj: state.adj,
+        skin: state.skin, skinEdge: state.skinEdge, hair: state.hair,
         name: state.name, count: state.count, sound: state.sound
       }));
     } catch (e) { /* sin espacio o modo privado: no pasa nada */ }
@@ -73,9 +77,12 @@
     state.count = data.count || 0;
     state.sound = data.sound !== false;
     state.skin = data.skin || null;
+    state.skinEdge = data.skinEdge || null;
+    state.hair = data.hair || null;
     el.name.value = state.name;
     paintCount();
     paintSound();
+    paintBody();
 
     if (data.src && data.det) {
       state.det = data.det;
@@ -86,7 +93,7 @@
         state.src = data.src;
         render();
         el.stage.classList.add('has-face');
-        flash('bienvenido de vuelta 🫡');
+        flash('welcome back 🫡');
       }).catch(() => { /* la foto guardada se rompió */ });
     }
   }
@@ -157,11 +164,11 @@
   // si no se encontró cara: recorte centrado y posiciones "de manual"
   function guess(img) {
     const w = img.naturalWidth, h = img.naturalHeight;
-    const m = Math.min(w, h), cx = w / 2, cy = h / 2, gap = m * 0.165;
+    const m = Math.min(w, h), cx = w / 2, cy = h / 2, gap = m * 0.155;
     return {
-      eyeL: { x: cx - gap, y: cy - m * 0.02, w: m * 0.12, h: m * 0.05 },
-      eyeR: { x: cx + gap, y: cy - m * 0.02, w: m * 0.12, h: m * 0.05 },
-      mouth: { x: cx, y: cy + m * 0.26, w: m * 0.22, h: m * 0.10 },
+      eyeL: { x: cx - gap, y: cy - m * 0.02, w: m * 0.11, h: m * 0.05 },
+      eyeR: { x: cx + gap, y: cy - m * 0.02, w: m * 0.11, h: m * 0.05 },
+      mouth: { x: cx, y: cy + m * 0.25, w: m * 0.2, h: m * 0.09 },
       angle: 0, eyeDist: gap * 2, ok: false
     };
   }
@@ -244,27 +251,30 @@
     };
   }
 
-  // Color de piel: se prueban varios puntos alrededor de cada rasgo y se elige uno
-  // "de piel" y más bien claro, para no terminar copiando pelo, sombras o delineador.
-  function sampleAt(nx, ny) {
-    const R = 6;
-    const x = clamp(Math.round(nx * S) - R, 0, S - 2 * R);
-    const y = clamp(Math.round(ny * S) - R, 0, S - 2 * R);
+  /* ------------------------------------------------------- color de piel */
+
+  // Se prueban varios puntos alrededor de cada rasgo y se elige uno "de piel" y
+  // más bien claro, para no terminar copiando pelo, sombras o delineador.
+  function sampleAt(nx, ny, source, w, h) {
+    const g = source || ctx;
+    const W = w || S, H = h || S, R = 6;
+    const x = clamp(Math.round(nx * W) - R, 0, W - 2 * R);
+    const y = clamp(Math.round(ny * H) - R, 0, H - 2 * R);
     let data;
-    try { data = ctx.getImageData(x, y, 2 * R, 2 * R).data; } catch (e) { return null; }
-    let r = 0, g = 0, b = 0, n = 0;
+    try { data = g.getImageData(x, y, 2 * R, 2 * R).data; } catch (e) { return null; }
+    let r = 0, gg = 0, b = 0, n = 0;
     for (let i = 0; i < data.length; i += 4) {
       if (data[i + 3] < 128) continue;
-      r += data[i]; g += data[i + 1]; b += data[i + 2]; n++;
+      r += data[i]; gg += data[i + 1]; b += data[i + 2]; n++;
     }
-    return n ? [r / n, g / n, b / n] : null;
+    return n ? [r / n, gg / n, b / n] : null;
   }
 
   const lum = (c) => 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2];
   const skinish = (c) => c[0] > c[2] + 6 && c[0] > 45 && c[0] < 248;
-  const css = (c) => `rgb(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])})`;
+  const css = (c) => `rgb(${Math.round(clamp(c[0], 0, 255))},${Math.round(clamp(c[1], 0, 255))},${Math.round(clamp(c[2], 0, 255))})`;
 
-  // de los candidatos, el que está en el percentil 70 de luminosidad:
+  // de los candidatos, el del percentil 70 de luminosidad:
   // ni el más oscuro (pelo/sombra) ni el más brillante (brillo especular)
   function pickSkin(spots) {
     const vals = spots.map(p => sampleAt(p[0], p[1])).filter(Boolean);
@@ -292,11 +302,20 @@
       [m.x - m.w * 0.5, m.y - m.h * 0.35], [m.x + m.w * 0.5, m.y - m.h * 0.35]
     ]);
     const all = pickSkin([
-      [0.50, 0.30], [0.38, 0.45], [0.62, 0.45], [0.50, 0.52],
-      [0.33, 0.62], [0.67, 0.62], [0.50, 0.86]
+      [0.50, 0.32], [0.38, 0.47], [0.62, 0.47], [0.50, 0.54],
+      [0.34, 0.64], [0.66, 0.64], [0.50, 0.86]
+    ]);
+    // color del borde de la cara: es el que se le pasa al cuerpo del avatar,
+    // así el cuello y la cabeza empalman con la foto y no queda un halo alrededor
+    const edge = pickSkin([
+      [0.50, 0.12], [0.24, 0.42], [0.76, 0.42],
+      [0.30, 0.72], [0.70, 0.72], [0.50, 0.88]
     ]);
     const base = all || l || r || mo;
     if (!base) return;
+    // mitad borde, mitad centro: si la foto tiene una sombra fuerte en el borde,
+    // el cuerpo no sale mucho más oscuro que la cara
+    state.skinEdge = css(edge ? edge.map((v, i) => v * 0.5 + base[i] * 0.5) : base);
 
     state.skin = css(base);
     el.fx.style.setProperty('--skin', css(base));
@@ -304,6 +323,57 @@
     el.fx.style.setProperty('--skin-r', css(r || base));
     el.fx.style.setProperty('--skin-m', css(mo || base));
     el.fx.style.setProperty('--skin-dark', css([base[0] * 0.72, base[1] * 0.64, base[2] * 0.6]));
+    paintBody();
+  }
+
+  // el cuerpo del avatar se pinta con el tono de piel de la foto, así no parece un casco
+  function paintBody() {
+    const body = state.skinEdge || state.skin;
+    if (body) {
+      const c = body.match(/\d+/g).map(Number);
+      el.stage.style.setProperty('--skin-body', body);
+      el.stage.style.setProperty('--skin-shade', css([c[0] * 0.78, c[1] * 0.66, c[2] * 0.6]));
+    }
+    if (state.hair) {
+      let c = state.hair.match(/\d+/g).map(Number);
+      // el pelo tiene que quedar más oscuro que la piel, si no el personaje sale de un solo color
+      if (body) {
+        const sk = body.match(/\d+/g).map(Number);
+        const top = lum(sk) * 0.7, L = lum(c) || 1;
+        if (L > top) c = c.map(v => v * top / L);
+      }
+      el.stage.style.setProperty('--hair', css(c));
+      el.stage.style.setProperty('--hair-hi', css([c[0] * 1.55 + 18, c[1] * 1.55 + 15, c[2] * 1.55 + 13]));
+    }
+  }
+
+  // el pelo se muestrea en un arco por encima de los ojos, sobre la foto original
+  function sampleHair(img, det) {
+    const w = img.naturalWidth, h = img.naturalHeight;
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const g = c.getContext('2d', { willReadFrequently: true });
+    g.drawImage(img, 0, 0);
+
+    const mid = { x: (det.eyeL.x + det.eyeR.x) / 2, y: (det.eyeL.y + det.eyeR.y) / 2 };
+    const grab = (deg, rad) => {
+      const a = deg * Math.PI / 180 + det.angle;
+      const nx = (mid.x + Math.cos(a) * det.eyeDist * rad) / w;
+      const ny = (mid.y + Math.sin(a) * det.eyeDist * rad) / h;
+      if (nx < 0.02 || nx > 0.98 || ny < 0.02 || ny > 0.98) return null;
+      return sampleAt(nx, ny, g, w, h);
+    };
+    const vals = [grab(-90, 1.6), grab(-62, 1.55), grab(-118, 1.55), grab(-45, 1.5), grab(-135, 1.5)]
+      .filter(Boolean).sort((a, b) => lum(a) - lum(b));
+    if (!vals.length) return null;
+
+    // mediana, mezclada con un castaño oscuro y con la luminosidad acotada,
+    // para que un fondo blanco no lo deje con pelo fluorescente
+    const mid5 = vals[Math.floor(vals.length / 2)];
+    const mixed = mid5.map((v, i) => v * 0.72 + [46, 30, 22][i] * 0.28);
+    const L = lum(mixed) || 1;
+    const k = L > 215 ? 215 / L : (L < 28 ? 28 / L : 1);
+    return css(mixed.map(v => v * k));
   }
 
   /* ---------------------------------------------------------------- fotos */
@@ -331,10 +401,10 @@
 
   async function useFile(file) {
     if (!file || !/^image\//.test(file.type)) {
-      status('eso no es una foto 🤨', 'err');
+      status("that's not a photo 🤨", 'err');
       return;
     }
-    status('leyendo la foto…', 'busy');
+    status('reading the photo…', 'busy');
 
     let img;
     try {
@@ -350,11 +420,11 @@
       state.src = small || raw;
       state.img = img;
     } catch (e) {
-      status('no pude abrir esa imagen 😵 probá con un JPG o PNG', 'err');
+      status("couldn't open that image 😵 try a JPG or PNG", 'err');
       return;
     }
 
-    status('buscando ojos y boca…', 'busy');
+    status('looking for eyes and mouth…', 'busy');
     let det = null;
     try {
       det = await detect(state.img);
@@ -365,7 +435,10 @@
     state.det = det || guess(state.img);
     state.adj = { ...DEFAULT_ADJ };
     state.skin = null;
+    state.skinEdge = null;
+    state.hair = det ? sampleHair(state.img, det) : null;
     syncSliders();
+    paintBody();
 
     render();   // primera pasada: mide los colores de la piel
     render();   // segunda: ya pinta el fondo con ese color
@@ -374,9 +447,9 @@
     save();
 
     if (state.det.ok) {
-      status('¡listo! ahora apretalo 👆');
+      status(state.name ? 'done! now smack it 👆' : 'done! now give it a name 👆');
     } else {
-      status('no le encontré la cara — acomodala vos con los sliders', 'err');
+      status("couldn't find a face — line it up yourself with the sliders", 'err');
       openPanel(true);
     }
   }
@@ -393,7 +466,7 @@
     el.bubble.style.setProperty('--rot', rand(-8, 8).toFixed(1) + 'deg');
     el.bubble.classList.add('show');
     el.stage.style.setProperty('--open', rand(0.82, 1.25).toFixed(2));
-    el.stage.style.setProperty('--tilt', rand(-4, 4).toFixed(1) + 'deg');
+    el.stage.style.setProperty('--tilt', rand(-3, 3).toFixed(1) + 'deg');
 
     el.stage.classList.remove('is-moan');
     void el.stage.offsetWidth;                 // reinicia la animación
@@ -409,8 +482,8 @@
     paintCount();
     save();
     burst();
+    whipCrack();
     speak(phrase);
-    squeak();
   }
 
   function burst() {
@@ -418,7 +491,7 @@
       const s = document.createElement('span');
       s.textContent = pick(EMOJI);
       s.style.left = rand(4, 92) + '%';
-      s.style.top = rand(18, 50) + '%';
+      s.style.top = rand(12, 34) + '%';
       s.style.setProperty('--px', rand(-60, 60).toFixed(0) + 'px');
       s.style.setProperty('--py', rand(-120, -60).toFixed(0) + 'px');
       s.style.setProperty('--pr', rand(-90, 90).toFixed(0) + 'deg');
@@ -435,34 +508,69 @@
     if (!state.sound || !('speechSynthesis' in window)) return;
     try {
       const u = new SpeechSynthesisUtterance(text.toLowerCase());
-      u.lang = /papi/i.test(text) ? 'es-ES' : 'en-US';
+      u.lang = 'en-US';
       u.pitch = rand(0.5, 1.6);
-      u.rate = rand(0.8, 1.15);
+      u.rate = rand(0.85, 1.15);
       speechSynthesis.cancel();
       speechSynthesis.speak(u);
     } catch (e) { /* sin voz, no pasa nada */ }
   }
 
-  let audio = null;
-  function squeak() {
+  let audio = null, noiseBuf = null;
+  function ac() {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state === 'suspended') audio.resume();
+    return audio;
+  }
+  function noise(a) {
+    if (!noiseBuf) {
+      const len = Math.floor(a.sampleRate * 0.4);
+      noiseBuf = a.createBuffer(1, len, a.sampleRate);
+      const d = noiseBuf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    }
+    return noiseBuf;
+  }
+
+  // látigo: silbido que sube + chasquido + un golpe grave
+  function whipCrack() {
     if (!state.sound) return;
     try {
-      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
-      if (audio.state === 'suspended') audio.resume();
-      const t0 = audio.currentTime;
-      const osc = audio.createOscillator();
-      const gain = audio.createGain();
+      const a = ac(), t0 = a.currentTime, buf = noise(a);
+
+      const s1 = a.createBufferSource(); s1.buffer = buf;
+      const bp = a.createBiquadFilter();
+      bp.type = 'bandpass'; bp.Q.value = 1.4;
+      bp.frequency.setValueAtTime(420, t0);
+      bp.frequency.exponentialRampToValueAtTime(3800, t0 + 0.13);
+      const g1 = a.createGain();
+      g1.gain.setValueAtTime(0.0001, t0);
+      g1.gain.exponentialRampToValueAtTime(0.2, t0 + 0.11);
+      g1.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.19);
+      s1.connect(bp).connect(g1).connect(a.destination);
+      s1.start(t0); s1.stop(t0 + 0.28);
+
+      const tc = t0 + 0.125;
+      const s2 = a.createBufferSource(); s2.buffer = buf;
+      const hp = a.createBiquadFilter();
+      hp.type = 'highpass'; hp.frequency.value = 2400;
+      const g2 = a.createGain();
+      g2.gain.setValueAtTime(0.0001, tc);
+      g2.gain.exponentialRampToValueAtTime(0.55, tc + 0.004);
+      g2.gain.exponentialRampToValueAtTime(0.0001, tc + 0.1);
+      s2.connect(hp).connect(g2).connect(a.destination);
+      s2.start(tc); s2.stop(tc + 0.16);
+
+      const osc = a.createOscillator();
       osc.type = 'sine';
-      const base = rand(200, 320);
-      osc.frequency.setValueAtTime(base, t0);
-      osc.frequency.exponentialRampToValueAtTime(base * 2.1, t0 + 0.09);
-      osc.frequency.exponentialRampToValueAtTime(base * 1.3, t0 + 0.28);
-      gain.gain.setValueAtTime(0.0001, t0);
-      gain.gain.exponentialRampToValueAtTime(0.16, t0 + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.32);
-      osc.connect(gain).connect(audio.destination);
-      osc.start(t0);
-      osc.stop(t0 + 0.34);
+      osc.frequency.setValueAtTime(170, tc);
+      osc.frequency.exponentialRampToValueAtTime(55, tc + 0.11);
+      const g3 = a.createGain();
+      g3.gain.setValueAtTime(0.0001, tc);
+      g3.gain.exponentialRampToValueAtTime(0.3, tc + 0.006);
+      g3.gain.exponentialRampToValueAtTime(0.0001, tc + 0.16);
+      osc.connect(g3).connect(a.destination);
+      osc.start(tc); osc.stop(tc + 0.2);
     } catch (e) { /* sin audio, no pasa nada */ }
   }
 
@@ -476,15 +584,17 @@
   }
   function flash(msg) {
     status(msg);
-    statusTimer = setTimeout(() => status('arrastrá una foto acá, o pegala con Ctrl+V'), 2500);
+    statusTimer = setTimeout(() => status(IDLE_HINT), 2500);
   }
 
   function paintCount() {
     el.count.textContent = String(state.count).padStart(6, '0');
+    el.lvl.textContent = 'LV.' + (Math.floor(state.count / 10) + 1);
+    el.xp.style.width = ((state.count % 10) * 10) + '%';
   }
 
   function paintSound() {
-    el.sound.textContent = state.sound ? '🔊 sonido' : '🔇 mute';
+    el.sound.textContent = state.sound ? '🔊 sound' : '🔇 muted';
     el.sound.setAttribute('aria-pressed', String(state.sound));
   }
 
@@ -500,25 +610,33 @@
   }
 
   function resetAll() {
-    state.img = null; state.src = null; state.det = null; state.skin = null;
+    state.img = null; state.src = null; state.det = null;
+    state.skin = null; state.skinEdge = null; state.hair = null; state.geom = null;
     state.adj = { ...DEFAULT_ADJ };
     syncSliders();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, S, S);
+    for (const p of ['--skin-body', '--skin-shade', '--hair', '--hair-hi']) {
+      el.stage.style.removeProperty(p);
+    }
     el.stage.classList.remove('has-face', 'is-moan');
     el.bubble.classList.remove('show');
     openPanel(false);
     el.file.value = '';
     save();
-    status('cara borrada. el muñeco está en paz.');
+    status('face cleared. the doll is at peace.');
   }
 
-  /* ---------------------------------------------------------------- eventos */
+  /* -------------------------------------------------------------- eventos */
 
   el.guy.addEventListener('click', moan);
 
   el.pick.addEventListener('click', () => el.file.click());
   el.file.addEventListener('change', (e) => useFile(e.target.files[0]));
+
+  const focusName = () => { el.name.focus(); el.name.select(); };
+  el.nameBtn.addEventListener('click', focusName);
+  el.nametag.addEventListener('click', () => el.name.focus());
 
   el.adjust.addEventListener('click', () => openPanel(el.panel.hidden));
   el.panelX.addEventListener('click', () => openPanel(false));
@@ -551,6 +669,7 @@
     state.name = el.name.value;
     save();
   });
+  el.name.addEventListener('keydown', (e) => { if (e.key === 'Enter') el.name.blur(); });
 
   // arrastrar y soltar
   ['dragenter', 'dragover'].forEach(ev => document.addEventListener(ev, (e) => {
@@ -574,8 +693,6 @@
     }
   });
 
-  // barra espaciadora / enter cuando el muñeco tiene foco ya funciona por ser <button>
-
   /* -------------------------------------------------------------- adornos */
 
   function sprinkle() {
@@ -592,7 +709,7 @@
     }
   }
 
-  /* ---------------------------------------------------------------- arranque */
+  /* ------------------------------------------------------------- arranque */
 
   sprinkle();
   restore();
