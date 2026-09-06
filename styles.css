@@ -470,6 +470,46 @@ body{
 .grid input[type=range]{width:100%;accent-color:var(--pink)}
 @media (max-width:420px){.grid{grid-template-columns:1fr}}
 
+/* ---------- money rain ---------- */
+.btn--money{
+  background:linear-gradient(180deg,#ffe14d,#2fbf5f);
+  color:#0d2b16;font-size:1.15rem;letter-spacing:.04em;
+  margin:.5rem 0 .1rem;
+  box-shadow:5px 5px 0 var(--ink);
+  animation:moneyPulse 2.2s ease-in-out infinite;
+}
+.btn--money:disabled{filter:grayscale(.5) brightness(1.05);cursor:default;animation:none}
+@keyframes moneyPulse{0%,100%{transform:rotate(-1deg) scale(1)}50%{transform:rotate(1deg) scale(1.04)}}
+
+.money{position:fixed;inset:0;pointer-events:none;z-index:9000;overflow:hidden}
+.money span{
+  position:absolute;top:-12vh;
+  font-size:2rem;line-height:1;
+  will-change:transform;
+  animation:fall linear forwards;
+}
+@keyframes fall{
+  0%{transform:translate3d(0,0,0) rotate(0);opacity:0}
+  8%{opacity:1}
+  50%{transform:translate3d(var(--sway,24px),58vh,0) rotate(calc(var(--spin,540deg) / 2))}
+  100%{transform:translate3d(0,122vh,0) rotate(var(--spin,540deg));opacity:.95}
+}
+
+/* el baile va después de moanShake a propósito: si le pegás mientras baila,
+   el baile no se corta (el latigazo y la frase igual suenan) */
+.stage.is-dancing .guy{animation:dance 1s ease-in-out infinite}
+@keyframes dance{
+  0%{transform:translateY(0) rotate(-5deg) scale(1,1)}
+  25%{transform:translateY(-12px) rotate(4deg) scale(.96,1.05)}
+  50%{transform:translateY(0) rotate(5deg) scale(1.05,.95)}
+  75%{transform:translateY(-9px) rotate(-4deg) scale(.97,1.04)}
+  100%{transform:translateY(0) rotate(-5deg) scale(1,1)}
+}
+.stage.is-dancing .head{animation:headBob .5s ease-in-out infinite}
+@keyframes headBob{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg) translateY(-3px)}}
+.stage.is-dancing .whip{animation:whipWave .5s ease-in-out infinite}
+@keyframes whipWave{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(10deg)}}
+
 /* ---------- cursor látigo ---------- */
 .whipcursor{
   position:fixed;left:0;top:0;width:74px;height:74px;
@@ -528,6 +568,8 @@ body.has-whip input,body.has-whip select,body.has-whip textarea{cursor:auto}
   .stage{width:min(80vw,300px)}
   .btn{font-size:.9rem;padding:.34rem .6rem;border-width:3px;box-shadow:3px 3px 0 var(--ink)}
   .btn--main{font-size:.95rem}
+  .btn--money{font-size:1rem}
+  .money span{font-size:1.6rem}
   .controls{gap:.4rem;margin:.6rem 0 .2rem}
   .counter{margin:.6rem 0 .1rem;font-size:.75rem}
   .foot{margin-top:1rem}
@@ -538,4 +580,6 @@ body.has-whip input,body.has-whip select,body.has-whip textarea{cursor:auto}
   .ticker__track,.sunburst,.head__ring,.logo,.guy,.floaters span,.nametag__pen{animation:none}
   .whipcursor.is-crack .wc__whip,.whipcursor.is-crack .wc__hit{animation:none}
   .is-moan .guy,.is-moan .head,.is-moan .drop,.is-moan .whip{animation:none}
+  .btn--money,.stage.is-dancing .guy,.stage.is-dancing .head,.stage.is-dancing .whip{animation:none}
+  .money span{animation-duration:1s}
 }

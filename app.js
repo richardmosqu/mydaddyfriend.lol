@@ -58,6 +58,7 @@
     skinCustom: $('#skinCustom'), hairCustom: $('#hairCustom'), autoColors: $('#autoColors'),
     voiceSel: $('#voiceSel'), voiceTest: $('#voiceTest'),
     whipCursor: $('#whipCursor'), dress: $('#dressBtn'), wardrobe: $('#wardrobe'),
+    money: $('#money'), rain: $('#rainBtn'),
     poseChips: $('#poseChips'), itemChips: $('#itemChips'), gearChips: $('#gearChips'),
     accBlind: $('#accBlind'), accGag: $('#accGag')
   };
@@ -971,6 +972,7 @@
   addEventListener('pointerdown', () => {
     try { ac().resume(); } catch (e) { /* nada */ }
     loadVoiceClips();
+    loadSong();
   }, { once: true, capture: true });
 
   el.pick.addEventListener('click', () => el.file.click());
@@ -1005,6 +1007,7 @@
     save();
   }
   el.dress.addEventListener('click', () => openWardrobe(el.wardrobe.hidden));
+  el.rain.addEventListener('click', moneyRain);
 
   el.skinCustom.addEventListener('input', () => setColour('skin', el.skinCustom.value));
   el.hairCustom.addEventListener('input', () => setColour('hair', el.hairCustom.value));
@@ -1113,6 +1116,77 @@
     mark(el.poseChips, id => id === state.pose);
     mark(el.itemChips, id => id === state.item);
     mark(el.gearChips, id => state.gear.includes(id));
+  }
+
+  /* ---------------------------------------------------------- money rain */
+
+  const BILLS = ['💵', '💵', '💵', '💴', '💶', '💷', '💰', '🤑'];
+  let songBuffer = null, songPromise = null, songNode = null;
+  let dripId = null, cutId = null, stopId = null;
+
+  function loadSong() {
+    if (songPromise) return songPromise;            // una sola descarga
+    songPromise = (async () => {
+      try {
+        const res = await fetch('sounds/money-rain.mp3');
+        if (!res.ok) return;
+        songBuffer = await ac().decodeAudioData(await res.arrayBuffer());
+      } catch (e) { /* sin canción, igual llueve */ }
+    })();
+    return songPromise;
+  }
+
+  function dropBill() {
+    const s = document.createElement('span');
+    s.textContent = pick(BILLS);
+    s.style.left = rand(-2, 98) + 'vw';
+    s.style.fontSize = rand(1.3, 2.8).toFixed(2) + 'rem';
+    s.style.animationDuration = rand(1.7, 3.2).toFixed(2) + 's';
+    s.style.setProperty('--sway', rand(-70, 70).toFixed(0) + 'px');
+    s.style.setProperty('--spin', rand(-900, 900).toFixed(0) + 'deg');
+    s.addEventListener('animationend', () => s.remove());
+    el.money.appendChild(s);
+    while (el.money.childElementCount > 90) el.money.firstElementChild.remove();
+  }
+
+  function stopRain() {
+    clearInterval(dripId); clearTimeout(cutId); clearTimeout(stopId);
+    dripId = cutId = stopId = null;
+    el.stage.classList.remove('is-dancing');
+    el.rain.disabled = false;
+    el.rain.textContent = '💸 MONEY RAIN';
+    if (songNode) { try { songNode.stop(); } catch (e) { /* ya terminó */ } songNode = null; }
+  }
+
+  async function moneyRain() {
+    if (el.rain.disabled) return;
+    el.rain.disabled = true;
+    el.rain.textContent = '🤑 MAKING IT RAIN…';
+    el.stage.classList.add('is-dancing');
+
+    // los billetes arrancan ya, sin esperar a que baje la canción
+    for (let i = 0; i < 10; i++) dropBill();
+    dripId = setInterval(dropBill, 110);
+
+    await loadSong();
+    const secs = songBuffer ? songBuffer.duration : 8.4;
+
+    if (songBuffer) {
+      withAudio((a) => {
+        if (songNode) { try { songNode.stop(); } catch (e) { /* nada */ } }
+        const src = a.createBufferSource();
+        src.buffer = songBuffer;
+        const g = a.createGain();
+        g.gain.value = 0.75;
+        src.connect(g).connect(a.destination);
+        src.start();
+        songNode = src;
+      });
+    }
+
+    // el goteo corta antes que la canción, así los últimos billetes llegan al piso
+    cutId = setTimeout(() => { clearInterval(dripId); dripId = null; }, Math.max(500, (secs - 1.4) * 1000));
+    stopId = setTimeout(stopRain, secs * 1000);
   }
 
   /* --------------------------------------------------------- cursor látigo */
