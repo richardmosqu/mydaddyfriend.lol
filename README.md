@@ -53,6 +53,12 @@ así que siguen ahí cuando volvés. `🗑️ clear` los limpia.
   selector en el panel para volver a ella. Ver `sounds/README.md` para reemplazarlas
   por grabaciones propias.
 - El gemido con formantes quedó como un respiro corto (180-240 ms) antes de la frase.
+- **Money rain**: el botón tira billetes por toda la pantalla, el personaje baila y suena
+  una canción de 8 s. La canción está compuesta a mano en `sounds/money-rain.mp3` (kick,
+  clap, hats, bajo y un riff pentatónico a 120 BPM, generados por síntesis en Python y
+  masterizados con ffmpeg) y se reproduce por el mismo `AudioContext` que todo lo demás.
+  El baile es CSS a 1 s por ciclo, o sea dos tiempos de la canción. Se le puede seguir
+  pegando mientras baila.
 - El latigazo también es Web Audio puro: ruido blanco por un pasa-banda que barre de
   420 Hz a 3.8 kHz (el silbido), un chasquido filtrado en agudos y un golpe grave de
   170 a 55 Hz. No hay ningún archivo de audio en todo el proyecto.
