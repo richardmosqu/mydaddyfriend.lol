@@ -605,7 +605,7 @@
   let moanTimer = null;
 
   function moan() {
-    if (!el.stage.classList.contains('has-face')) { el.file.click(); return; }
+    if (!el.stage.classList.contains('has-face')) return;   // abrir el selector es cosa de hit()
 
     const clip = useClips() ? pick(voiceClips) : null;
     const phrase = clip ? null : pick(PHRASES);
@@ -1202,6 +1202,15 @@
 
   let lastHit = 0;
   function hit(e) {
+    // Mientras no hay cara, el muñeco es el botón para elegir la foto. Eso se hace
+    // en el click y NUNCA en el pointerdown: Safari y iOS no abren el selector de
+    // archivos si la llamada no viene de un click, y como el antirrebote de abajo
+    // marcaba el pointerdown, después se comía el click que sí servía. Con el mouse
+    // no pasaba nada y había que llegar con el teclado.
+    if (!el.stage.classList.contains('has-face')) {
+      if (e.type === 'click') el.file.click();
+      return;                             // sin cara no hay latigazo ni gemido
+    }
     const now = Date.now();
     if (now - lastHit < 350) return;      // pointerdown ya lo disparó, el click es el eco
     lastHit = now;
