@@ -208,11 +208,39 @@ body{
 }
 
 /* ---------- la cara recortada ---------- */
-.head{
-  position:absolute;
-  left:34.444%;top:19.895%;width:31.111%;height:14.660%;
-  z-index:2;
-}
+.head{position:absolute;z-index:2}
+
+/* ---------- poses ---------- */
+.pose{display:none}
+.stage[data-pose="stand"] .pose[data-pose="stand"],
+.stage[data-pose="kneel"] .pose[data-pose="kneel"],
+.stage[data-pose="lying"] .pose[data-pose="lying"],
+.stage[data-pose="back"]  .pose[data-pose="back"]{display:block}
+
+/* la caja de la cara sigue a la cabeza de cada pose */
+.stage[data-pose="stand"] .head{left:34.444%;top:19.895%;width:31.111%;height:14.660%}
+.stage[data-pose="kneel"] .head{left:33.056%;top:23.429%;width:33.889%;height:15.969%}
+.stage[data-pose="lying"] .head{left:33.889%;top:22.775%;width:32.5%;height:15.314%}
+.stage[data-pose="back"]  .head{left:38.333%;top:19.110%;width:31.111%;height:14.660%}
+
+.headgear{fill:var(--hair)}
+
+/* ---------- accesorios ---------- */
+.acc{display:none}
+.stage.gear-collar .a-collar,
+.stage.gear-cuffs  .a-cuffs,
+.stage.gear-rope   .a-rope{display:block}
+
+.item{display:none}
+.stage[data-item="whip"] .item--whip,
+.stage[data-item="paddle"] .item--paddle,
+.stage[data-item="flogger"] .item--flogger{display:block}
+
+.headacc{position:absolute;inset:0;z-index:3;pointer-events:none}
+.hacc{position:absolute;display:none;transform:translate(-50%,-50%)}
+.hacc svg{width:100%;height:100%;display:block;overflow:visible}
+.stage.gear-blind .hacc--blind,
+.stage.gear-gag   .hacc--gag{display:block}
 /* silueta de cara con el borde difuminado: se recorta la cara, no una pelota */
 .face{
   position:absolute;inset:0;overflow:hidden;
@@ -318,6 +346,54 @@ body{
 .btn--ghost{background:transparent;box-shadow:3px 3px 0 var(--ink);font-size:.9rem}
 .btn[aria-pressed="false"]{opacity:.55;text-decoration:line-through}
 
+/* ---------- selector de pose, objeto y accesorios ---------- */
+.picker{
+  display:flex;flex-direction:column;gap:.35rem;
+  margin:.8rem 0 0;padding:.5rem .7rem .55rem;
+  background:#fff;border:4px solid var(--ink);box-shadow:5px 5px 0 var(--ink);
+  transform:rotate(.4deg);max-width:100%;
+}
+.picker__row{display:flex;align-items:center;gap:.4rem}
+.picker__label{font-size:.6rem;letter-spacing:.12em;width:3.1rem;text-align:right;opacity:.65;flex:0 0 auto}
+.chips{display:flex;gap:.25rem;flex-wrap:wrap}
+.chip{
+  font:inherit;font-size:.72rem;cursor:pointer;
+  background:#f2efe8;color:var(--ink);
+  border:2px solid var(--ink);border-radius:999px;
+  padding:.16rem .5rem;line-height:1.3;
+  transition:transform .08s;
+}
+.chip:hover{transform:translateY(-1px)}
+.chip[aria-pressed="true"]{background:var(--pink);color:#fff;box-shadow:0 0 0 2px var(--lime) inset}
+@media (max-width:420px){
+  .chip{font-size:.66rem;padding:.14rem .4rem}
+  .picker__label{width:2.6rem;font-size:.55rem}
+}
+
+/* ---------- selector de pose, objeto y accesorios ---------- */
+.picker{
+  display:flex;flex-direction:column;gap:.35rem;
+  margin:.8rem 0 0;padding:.5rem .7rem .55rem;
+  background:#fff;border:4px solid var(--ink);box-shadow:5px 5px 0 var(--ink);
+  transform:rotate(.4deg);max-width:100%;
+}
+.picker__row{display:flex;align-items:center;gap:.4rem}
+.picker__label{font-size:.6rem;letter-spacing:.12em;width:3.1rem;text-align:right;opacity:.65;flex:0 0 auto}
+.chips{display:flex;gap:.25rem;flex-wrap:wrap}
+.chip{
+  font:inherit;font-size:.72rem;cursor:pointer;
+  background:#f2efe8;color:var(--ink);
+  border:2px solid var(--ink);border-radius:999px;
+  padding:.16rem .5rem;line-height:1.3;
+  transition:transform .08s;
+}
+.chip:hover{transform:translateY(-1px)}
+.chip[aria-pressed="true"]{background:var(--pink);color:#fff;box-shadow:0 0 0 2px var(--lime) inset}
+@media (max-width:420px){
+  .chip{font-size:.66rem;padding:.14rem .4rem}
+  .picker__label{width:2.6rem;font-size:.55rem}
+}
+
 /* ---------- paleta de piel y pelo ---------- */
 .customizer{
   display:flex;flex-direction:column;align-items:center;gap:.35rem;
@@ -386,6 +462,45 @@ body{
 .grid input[type=range]{width:100%;accent-color:var(--pink)}
 @media (max-width:420px){.grid{grid-template-columns:1fr}}
 
+/* ---------- cursor látigo ---------- */
+.whipcursor{
+  position:fixed;left:0;top:0;width:74px;height:74px;
+  z-index:9999;pointer-events:none;
+  transform:translate3d(-300px,-300px,0);
+  opacity:0;transition:opacity .12s;
+}
+.whipcursor.on{opacity:1}
+.whipcursor svg{width:100%;height:100%;display:block;overflow:visible}
+.wc__grip,.wc__knob{fill:#141118}
+.wc__knob{fill:#9a9aa6}
+.wc__lash{fill:none;stroke:#141118;stroke-linecap:round;filter:drop-shadow(0 1px 1px rgba(255,255,255,.55))}
+.wc__lash--1{stroke-width:6}
+.wc__lash--2{stroke-width:3}
+.wc__whip{transform-box:view-box;transform-origin:12px 12px}
+.wc__hit{opacity:0;transform-box:view-box;transform-origin:70px 78px}
+.wc__hit path{fill:none;stroke:#ff2e88;stroke-width:5;stroke-linecap:round}
+.wc__hit text{
+  font-family:var(--comic);font-size:21px;font-weight:700;
+  fill:#fff;stroke:#141118;stroke-width:5;paint-order:stroke fill;
+}
+/* el cursor del sistema se esconde, pero vuelve sobre los controles para no marear */
+body.has-whip{cursor:none}
+body.has-whip input,body.has-whip select,body.has-whip textarea{cursor:auto}
+
+.whipcursor.is-crack .wc__whip{animation:wcCrack .34s ease-out}
+.whipcursor.is-crack .wc__hit{animation:wcHit .42s ease-out}
+@keyframes wcCrack{
+  0%{transform:rotate(0)}
+  22%{transform:rotate(-34deg)}
+  52%{transform:rotate(20deg)}
+  100%{transform:rotate(0)}
+}
+@keyframes wcHit{
+  0%{opacity:0;transform:scale(.35) rotate(-8deg)}
+  25%{opacity:1;transform:scale(1.05) rotate(2deg)}
+  100%{opacity:0;transform:scale(1.6) rotate(8deg)}
+}
+
 /* ---------- flotantes raros ---------- */
 .floaters{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .floaters span{position:absolute;opacity:.7;animation:drift linear infinite}
@@ -398,5 +513,6 @@ body{
 
 @media (prefers-reduced-motion:reduce){
   .ticker__track,.sunburst,.head__ring,.logo,.guy,.floaters span,.nametag__pen{animation:none}
+  .whipcursor.is-crack .wc__whip,.whipcursor.is-crack .wc__hit{animation:none}
   .is-moan .guy,.is-moan .head,.is-moan .drop,.is-moan .whip{animation:none}
 }

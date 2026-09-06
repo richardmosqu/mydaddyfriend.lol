@@ -56,7 +56,10 @@
     panelX: $('#panelX'), panelReset: $('#panelReset'),
     skinSw: $('#skinSwatches'), hairSw: $('#hairSwatches'),
     skinCustom: $('#skinCustom'), hairCustom: $('#hairCustom'), autoColors: $('#autoColors'),
-    voiceSel: $('#voiceSel'), voiceTest: $('#voiceTest')
+    voiceSel: $('#voiceSel'), voiceTest: $('#voiceTest'),
+    whipCursor: $('#whipCursor'),
+    poseChips: $('#poseChips'), itemChips: $('#itemChips'), gearChips: $('#gearChips'),
+    accBlind: $('#accBlind'), accGag: $('#accGag')
   };
 
   const ctx = el.canvas.getContext('2d', { willReadFrequently: true });
@@ -75,6 +78,9 @@
     skinPick: null,     // color elegido a mano (null = el de la foto)
     hairPick: null,
     voice: '',          // voiceURI elegido a mano ('' = la que elige solo)
+    pose: 'stand',
+    item: 'whip',
+    gear: [],           // accesorios puestos
     name: '', count: 0, sound: true
   };
 
@@ -91,6 +97,7 @@
         src: state.src, det: state.det, adj: state.adj,
         skin: state.skin, skinEdge: state.skinEdge, hair: state.hair,
         skinPick: state.skinPick, hairPick: state.hairPick, voice: state.voice,
+        pose: state.pose, item: state.item, gear: state.gear,
         name: state.name, count: state.count, sound: state.sound
       }));
     } catch (e) { /* sin espacio o modo privado: no pasa nada */ }
@@ -110,10 +117,14 @@
     state.skinPick = data.skinPick || null;
     state.hairPick = data.hairPick || null;
     state.voice = data.voice || '';
+    state.pose = data.pose || 'stand';
+    state.item = data.item || 'whip';
+    state.gear = Array.isArray(data.gear) ? data.gear : [];
     el.name.value = state.name;
     paintCount();
     paintSound();
     paintBody();
+    paintLook();
 
     if (data.src && data.det) {
       state.det = data.det;
@@ -274,6 +285,12 @@
     const M = mapPoint(d.mouth, t);
     const mw = clamp(d.mouth.w * k * 1.5 * a.mouthS, 0.12, 0.66);
     place(el.mouth, M.x, M.y + a.mouthY, mw, mw * 1.06);
+
+    // el antifaz y la mordaza usan los ojos y la boca detectados, así calzan en cualquier cara
+    const span = Math.abs((mid.x - L.x) * 2 * a.eyeGap) || eyeW;
+    const bw = clamp(span * 2.5, 0.3, 0.98);
+    place(el.accBlind, mid.x, mid.y + a.eyeY, bw, bw * 0.34);
+    place(el.accGag, M.x, M.y + a.mouthY, mw * 1.12, mw * 1.12);
 
     state.geom = {
       eyeL: { x: parseFloat(el.eyeL.style.left) / 100, y: parseFloat(el.eyeL.style.top) / 100, w: eyeW, h: eyeH },
@@ -578,10 +595,10 @@
     state.count++;
     paintCount();
     save();
-    burst();
+    speak(phrase);   // primero: el motor de voz es lo que más tarda en arrancar
     whipCrack();
     gasp();
-    speak(phrase);
+    burst();
   }
 
   function burst() {
@@ -662,6 +679,19 @@
     return autoVoice;
   }
 
+  // El motor de voz tarda bastante en arrancar la primera vez. Se lo despierta con
+  // una locución muda en el primer gesto del usuario, así el primer "daddy" no llega tarde.
+  let ttsWarm = false;
+  function warmTTS() {
+    if (ttsWarm || !('speechSynthesis' in window)) return;
+    ttsWarm = true;
+    try {
+      const u = new SpeechSynthesisUtterance(' ');
+      u.volume = 0;
+      speechSynthesis.speak(u);
+    } catch (e) { /* nada */ }
+  }
+
   function speak(phrase) {
     if (!state.sound || !('speechSynthesis' in window)) return;
     try {
@@ -696,45 +726,52 @@
     return noiseBuf;
   }
 
-  // látigo: silbido que sube + chasquido + un golpe grave
+  // Látigo: el golpe tiene que caer casi encima del click. Antes el silbido tardaba
+  // 125 ms en llegar al chasquido y para cuando sonaba ya había arrancado el gemido,
+  // así que el golpe quedaba tapado y parecía que no sonaba.
+  const CRACK_AT = 0.055;
+
   function whipCrack() {
     if (!state.sound) return;
     try {
       const a = ac(), t0 = a.currentTime, buf = noise(a);
+      const tc = t0 + CRACK_AT;
 
+      // silbido: corto, solo para anunciar el golpe
       const s1 = a.createBufferSource(); s1.buffer = buf;
       const bp = a.createBiquadFilter();
-      bp.type = 'bandpass'; bp.Q.value = 1.4;
-      bp.frequency.setValueAtTime(420, t0);
-      bp.frequency.exponentialRampToValueAtTime(3800, t0 + 0.13);
+      bp.type = 'bandpass'; bp.Q.value = 1.2;
+      bp.frequency.setValueAtTime(600, t0);
+      bp.frequency.exponentialRampToValueAtTime(4200, tc);
       const g1 = a.createGain();
       g1.gain.setValueAtTime(0.0001, t0);
-      g1.gain.exponentialRampToValueAtTime(0.2, t0 + 0.11);
-      g1.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.19);
+      g1.gain.exponentialRampToValueAtTime(0.18, t0 + 0.045);
+      g1.gain.exponentialRampToValueAtTime(0.0001, tc + 0.02);
       s1.connect(bp).connect(g1).connect(a.destination);
-      s1.start(t0); s1.stop(t0 + 0.28);
+      s1.start(t0); s1.stop(tc + 0.06);
 
-      const tc = t0 + 0.125;
+      // chasquido: ataque de 2 ms y caída rápida, para que se oiga como un golpe seco
       const s2 = a.createBufferSource(); s2.buffer = buf;
       const hp = a.createBiquadFilter();
-      hp.type = 'highpass'; hp.frequency.value = 2400;
+      hp.type = 'highpass'; hp.frequency.value = 3000;
       const g2 = a.createGain();
       g2.gain.setValueAtTime(0.0001, tc);
-      g2.gain.exponentialRampToValueAtTime(0.55, tc + 0.004);
-      g2.gain.exponentialRampToValueAtTime(0.0001, tc + 0.1);
+      g2.gain.exponentialRampToValueAtTime(0.85, tc + 0.002);
+      g2.gain.exponentialRampToValueAtTime(0.0001, tc + 0.07);
       s2.connect(hp).connect(g2).connect(a.destination);
-      s2.start(tc); s2.stop(tc + 0.16);
+      s2.start(tc); s2.stop(tc + 0.12);
 
+      // el cuerpo del impacto
       const osc = a.createOscillator();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(170, tc);
-      osc.frequency.exponentialRampToValueAtTime(55, tc + 0.11);
+      osc.frequency.setValueAtTime(200, tc);
+      osc.frequency.exponentialRampToValueAtTime(50, tc + 0.09);
       const g3 = a.createGain();
       g3.gain.setValueAtTime(0.0001, tc);
-      g3.gain.exponentialRampToValueAtTime(0.3, tc + 0.006);
-      g3.gain.exponentialRampToValueAtTime(0.0001, tc + 0.16);
+      g3.gain.exponentialRampToValueAtTime(0.34, tc + 0.004);
+      g3.gain.exponentialRampToValueAtTime(0.0001, tc + 0.13);
       osc.connect(g3).connect(a.destination);
-      osc.start(tc); osc.stop(tc + 0.2);
+      osc.start(tc); osc.stop(tc + 0.16);
     } catch (e) { /* sin audio, no pasa nada */ }
   }
 
@@ -744,7 +781,8 @@
   function gasp() {
     if (!state.sound) return;
     try {
-      const a = ac(), t0 = a.currentTime + 0.1, dur = rand(0.42, 0.62);
+      // arranca recién pasado el chasquido: si se pisan, no se oye ninguno de los dos
+      const a = ac(), t0 = a.currentTime + CRACK_AT + 0.06, dur = rand(0.26, 0.34);
       const f0 = rand(196, 248);   // rango de voz femenina
 
       const osc = a.createOscillator();
@@ -761,8 +799,8 @@
 
       const out = a.createGain();
       out.gain.setValueAtTime(0.0001, t0);
-      out.gain.exponentialRampToValueAtTime(0.13, t0 + 0.09);
-      out.gain.setValueAtTime(0.13, t0 + dur * 0.6);
+      out.gain.exponentialRampToValueAtTime(0.12, t0 + 0.06);
+      out.gain.setValueAtTime(0.12, t0 + dur * 0.55);
       out.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
       out.connect(a.destination);
 
@@ -847,7 +885,11 @@
 
   /* -------------------------------------------------------------- eventos */
 
-  el.guy.addEventListener('click', moan);
+  el.guy.addEventListener('click', (e) => {
+    crackWhip(e.clientX || null, e.clientY || null);
+    moan();
+  });
+  addEventListener('pointerdown', warmTTS, { once: true });
 
   el.pick.addEventListener('click', () => el.file.click());
   el.file.addEventListener('change', (e) => useFile(e.target.files[0]));
@@ -927,6 +969,96 @@
     }
   });
 
+  /* -------------------------------------------------- poses y accesorios */
+
+  const POSES = [
+    { id: 'stand', label: '🧍 stand' },
+    { id: 'kneel', label: '🧎 kneel' },
+    { id: 'lying', label: '🛋 lie down' },
+    { id: 'back',  label: '🍑 from behind' }
+  ];
+  const ITEMS = [
+    { id: 'whip',    label: '🪢 whip' },
+    { id: 'paddle',  label: '🏓 paddle' },
+    { id: 'flogger', label: '🧹 flogger' },
+    { id: 'none',    label: '✋ nothing' }
+  ];
+  const GEAR = [
+    { id: 'blind',  label: '😶‍🌫️ blindfold' },
+    { id: 'gag',    label: '⚫ ball gag' },
+    { id: 'collar', label: '🐕 collar + leash' },
+    { id: 'cuffs',  label: '⛓ cuffs' },
+    { id: 'rope',   label: '🪢 rope' }
+  ];
+
+  function buildChips() {
+    const chip = (host, id, label, onClick) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip';
+      b.dataset.id = id;
+      b.textContent = label;
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', onClick);
+      host.appendChild(b);
+      return b;
+    };
+    for (const p of POSES) chip(el.poseChips, p.id, p.label, () => { state.pose = p.id; paintLook(); save(); });
+    for (const i of ITEMS) chip(el.itemChips, i.id, i.label, () => { state.item = i.id; paintLook(); save(); });
+    for (const g of GEAR) chip(el.gearChips, g.id, g.label, () => {
+      const at = state.gear.indexOf(g.id);
+      if (at >= 0) state.gear.splice(at, 1); else state.gear.push(g.id);
+      paintLook();
+      save();
+    });
+  }
+
+  function paintLook() {
+    el.stage.dataset.pose = state.pose;
+    el.stage.dataset.item = state.item;
+    for (const g of GEAR) el.stage.classList.toggle('gear-' + g.id, state.gear.includes(g.id));
+    const mark = (host, on) => {
+      for (const b of host.children) b.setAttribute('aria-pressed', String(on(b.dataset.id)));
+    };
+    mark(el.poseChips, id => id === state.pose);
+    mark(el.itemChips, id => id === state.item);
+    mark(el.gearChips, id => state.gear.includes(id));
+  }
+
+  /* --------------------------------------------------------- cursor látigo */
+
+  const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
+  let crackTimer = null;
+
+  function moveWhip(x, y) {
+    el.whipCursor.style.transform = `translate3d(${x - 12}px, ${y - 11}px, 0)`;
+  }
+
+  // en desktop late siguiendo al mouse; en celular aparece en el punto del toque
+  function crackWhip(x, y) {
+    if (x != null) moveWhip(x, y);
+    el.whipCursor.classList.add('on');
+    el.whipCursor.classList.remove('is-crack');
+    void el.whipCursor.offsetWidth;              // reinicia la animación
+    el.whipCursor.classList.add('is-crack');
+    clearTimeout(crackTimer);
+    crackTimer = setTimeout(() => {
+      el.whipCursor.classList.remove('is-crack');
+      if (!finePointer.matches) el.whipCursor.classList.remove('on');
+    }, 430);
+  }
+
+  function initWhipCursor() {
+    if (!finePointer.matches) return;
+    document.body.classList.add('has-whip');
+    addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'touch') return;
+      moveWhip(e.clientX, e.clientY);
+      el.whipCursor.classList.add('on');
+    }, { passive: true });
+    document.addEventListener('pointerleave', () => el.whipCursor.classList.remove('on'));
+  }
+
   /* -------------------------------------------------------------- adornos */
 
   function sprinkle() {
@@ -946,7 +1078,10 @@
   /* ------------------------------------------------------------- arranque */
 
   sprinkle();
+  initWhipCursor();
   buildSwatches();
+  buildChips();
+  paintLook();
   restore();
 
   // en Chrome la lista de voces llega después de cargar la página
