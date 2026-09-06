@@ -127,15 +127,24 @@ python3 -m http.server 8000
 Any static host works — GitHub Pages, Netlify, Vercel, plain `nginx`. There is nothing
 to configure: no server, no database, no API keys, no environment variables.
 
-For **GitHub Pages on a custom domain**, add a file called `CNAME` at the repo root
-containing just the domain, then point the domain's DNS at GitHub (four `A` records for
-the apex, plus a `CNAME` for `www`) — the current addresses are in
-[GitHub's docs](https://docs.github.com/pages/configuring-a-custom-domain-for-your-github-pages-site).
-Turn on **Enforce HTTPS** in Settings → Pages once the certificate is issued.
+This one runs on **GitHub Pages at `mydaddyfriend.lol`**. Two halves have to agree:
+
+- **In the repo**: the `CNAME` file at the root holds the bare domain, one line, nothing
+  else — no `https://`, no trailing slash, no `www`. GitHub reads it on every deploy and
+  a malformed one silently unsets the custom domain.
+- **In the DNS**: four `A` records on `@` pointing at GitHub's Pages addresses, four
+  `AAAA` for IPv6, and a `CNAME` on `www` pointing at `<user>.github.io`. Don't copy the
+  addresses from here — they're in
+  [GitHub's docs](https://docs.github.com/pages/configuring-a-custom-domain-for-your-github-pages-site),
+  and they're also whatever `<user>.github.io` resolves to right now.
+
+Then turn on **Enforce HTTPS** in Settings → Pages, once the certificate is issued. It
+takes a few minutes after the DNS propagates and stays greyed out until then.
 
 ## Files
 
 ```
+CNAME                 the custom domain, read by GitHub Pages on every deploy
 index.html            the page and the avatar (SVG in two layers, behind and in front of the face)
 privacy.html          the privacy policy
 styles.css            everything yellow, plus the face-shaped mask
