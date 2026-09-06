@@ -13,10 +13,13 @@ Todo pasa **dentro del navegador**: la foto nunca se sube a ningún servidor.
 
 1. `📸 add a face` (o arrastrás la foto a la página, o la pegás con `Ctrl+V`).
 2. `✏️ name it` y le escribís el nombre.
-3. Si el tono de piel o de pelo no te convence, lo cambiás en la tira de colores
+3. Le elegís **pose** (de pie, arrodillada, boca abajo, de espaldas), qué tiene **en la mano**
+   (látigo, pala, flogger o nada) y qué **accesorios** lleva puestos (antifaz, mordaza de bola
+   con correa, collar con correa, esposas, cuerda).
+4. Si el tono de piel o de pelo no te convence, lo cambiás en la tira de colores
    (10 tonos de cada uno, más un selector libre). `↺ take the colors from the photo`
    vuelve a los que sacó de la foto.
-4. Lo apretás. Y lo volvés a apretar. Cada 10 clicks sube de nivel.
+5. Lo apretás. Y lo volvés a apretar. Cada 10 clicks sube de nivel.
 
 La foto, el nombre y el contador quedan guardados en el `localStorage` del navegador,
 así que siguen ahí cuando volvés. `🗑️ clear` los limpia.
@@ -55,6 +58,15 @@ así que siguen ahí cuando volvés. `🗑️ clear` los limpia.
   3. **Un gemido sintetizado por debajo**, con formantes: un oscilador diente de sierra
      con vibrato pasado por tres pasa-banda que se abren de "mm" a "ah", más un poco de
      ruido de aire. Eso es lo que le pone cuerpo humano.
+- El cursor es un látigo que sigue al mouse y chasquea al hacer click. En celular no hay
+  cursor, así que la animación aparece en el punto donde tocaste y se va sola.
+- **Poses**: las cuatro están dibujadas en SVG dentro del mismo `viewBox`, y solo se muestra
+  una por vez. La caja de la cara se reposiciona por CSS en cada pose, así que la foto
+  recortada acompaña a la cabeza sin recalcular nada en JS.
+- **Accesorios**: los que van sobre la cara (antifaz y mordaza) se posicionan con los mismos
+  ojos y boca que detectó face-api, así que calzan en cualquier cara. Los del cuerpo (collar,
+  esposas, cuerda) se dibujan una sola vez en `<defs>` y cada pose los coloca con un
+  `transform`, en vez de redibujarlos cuatro veces.
 - El latigazo también es Web Audio puro: ruido blanco por un pasa-banda que barre de
   420 Hz a 3.8 kHz (el silbido), un chasquido filtrado en agudos y un golpe grave de
   170 a 55 Hz. No hay ningún archivo de audio en todo el proyecto.
