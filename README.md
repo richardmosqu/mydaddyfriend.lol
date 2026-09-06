@@ -55,6 +55,9 @@ así que siguen ahí cuando volvés. `🗑️ clear` los limpia.
      pronuncia `yesss... daddy`. Las comas y los puntos suspensivos son lo que le da
      entonación. El pitch varía poco (1.05–1.35) a propósito: estirarlo mucho es
      justamente lo que la hacía sonar a robot.
+     Nunca se llama a `cancel()` y `speak()` en el mismo tick: Chrome deja el motor de
+     voz colgado para el resto de la sesión y no vuelve a hablar nunca. Si ya hay una
+     frase sonando se la deja terminar, y el latigazo suena igual en cada click.
   3. **Un gemido sintetizado por debajo**, con formantes: un oscilador diente de sierra
      con vibrato pasado por tres pasa-banda que se abren de "mm" a "ah", más un poco de
      ruido de aire. Eso es lo que le pone cuerpo humano.
