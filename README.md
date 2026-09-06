@@ -19,7 +19,8 @@ Everything happens **inside your browser**. The photo is never uploaded anywhere
 4. If the skin or hair colour looks off, change it in the swatch strip — 10 shades of
    each plus a free colour picker. `↺ take the colors from the photo` goes back to the
    ones sampled from the photo.
-5. Smack it. Then smack it again. Every 10 clicks it levels up.
+5. Smack it. Then smack it again. Every 10 smacks it levels up, and every so many
+   levels it earns a new **rank** — from `🥩 FRESH MEAT` up to `👑 IMMORTAL` at level 100.
 6. `💸 MONEY RAIN` throws cash at it and makes it dance for the length of the song.
 
 The photo, the name and the counter live in the browser's `localStorage`, so they're
@@ -53,6 +54,38 @@ still there when you come back. `🗑️ clear` wipes them.
 - Colours can be overridden by hand from the swatch strip. A hand-picked colour beats
   the sampled one and is saved; hand-picked hair isn't darkened, so platinum blonde or
   pink stays that way.
+
+### Levels and ranks
+
+A level is 10 smacks, flat, forever. That curve is deliberately **not** progressive: making
+later levels cost more would have demoted every doll that already exists, and someone who
+ground their way to level 100 shouldn't wake up at level 40.
+
+What escalates instead is the **rank**, which changes in jumps — that's what makes going up
+feel like something rather than a bigger number:
+
+| Level | Rank | What changes on the stage |
+|---|---|---|
+| 1 | 🥩 FRESH MEAT | plain |
+| 5 | 🐶 GOOD BOY | a faint aura appears |
+| 10 | ⛓️ SUB | aura grows |
+| 20 | 😈 BRAT | grows again |
+| 35 | 🔥 PAIN ENJOYER | the sunburst starts spinning faster |
+| 50 | 💖 DADDY'S FAVORITE | the aura starts pulsing |
+| 75 | ⭐ LEGEND | the sunburst turns **white** |
+| 100 | 👑 IMMORTAL | the sunburst turns **black**, aura goes dark and beats fast |
+
+Each rank's aura carries its own colour, separate from the colour of its text. That isn't
+decoration: the page background is `#ffe000`, so gold — the obvious colour for the top two
+ranks — is invisible on it. LEGEND and IMMORTAL keep gold *text* and get their weight from
+changing the background instead, which is the only thing that makes a level 100 doll read as
+standing somewhere else rather than in the same scene with a higher number.
+
+Levelling up is a moment, not a silent counter tick: a banner slams in, confetti in the
+rank's colour bursts out, the doll gets shaken, the stage flashes, and a rising arpeggio
+plays 280 ms after the click — after the whip and the slap, which own the first 180 ms.
+Earning a **new rank** is the same thing, bigger and longer, with an extra shimmer on top.
+Under the counter, a line tells you how many smacks are left until the next rank.
 
 ### The sound
 
