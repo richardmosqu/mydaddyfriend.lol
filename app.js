@@ -35,6 +35,31 @@
   const HAIRS = ['#0d0a09', '#2b1b12', '#4a2f1d', '#7b4a24', '#a9713a',
                  '#d9a441', '#efdcae', '#9b9b9b', '#a8331f', '#ff2e88'];
 
+  // El nivel sube cada 10 clicks y eso NO se toca: cambiar la curva bajaría de nivel
+  // a todos los muñecos que ya existen. Lo que cambia de a saltos es el rango, y eso
+  // es lo que hace que subir se sienta distinto en vez de ser un número más grande.
+  const LVL_STEP = 10;
+  // Los colores están elegidos contra el amarillo del fondo, no en abstracto: un
+  // dorado pálido sobre #ffe000 no se ve, que es justo lo que le pasaba al nivel 100.
+  // El aura y el fondo de cada rango los pone el CSS, que puede darles otro color
+  // que el del texto (IMMORTAL escribe en dorado pero su aura es negra).
+  const RANKS = [
+    { at:   1, id: 'meat',   name: 'FRESH MEAT',       icon: '🥩', color: '#efe7dc' },
+    { at:   5, id: 'good',   name: 'GOOD BOY',         icon: '🐶', color: '#5fd35f' },
+    { at:  10, id: 'sub',    name: 'SUB',              icon: '⛓️', color: '#25c2ff' },
+    { at:  20, id: 'brat',   name: 'BRAT',             icon: '😈', color: '#9b3dff' },
+    { at:  35, id: 'pain',   name: 'PAIN ENJOYER',     icon: '🔥', color: '#ff2e2e' },
+    { at:  50, id: 'fav',    name: "DADDY'S FAVORITE", icon: '💖', color: '#ff2e88' },
+    { at:  75, id: 'legend', name: 'LEGEND',           icon: '⭐', color: '#ffcf1a' },
+    { at: 100, id: 'god',    name: 'IMMORTAL',         icon: '👑', color: '#ffe600' }
+  ];
+  const levelOf = (n) => Math.floor(n / LVL_STEP) + 1;
+  const rankOf = (lvl) => {
+    let r = RANKS[0];
+    for (const x of RANKS) if (lvl >= x.at) r = x;
+    return r;
+  };
+
   const EMOJI = ['💗', '✨', '💦', '😩', '⭐', '💫', '🔥', '💕', '🫠'];
   const FLOATERS = ['🍌', '👁️', '🧀', '🐛', '🫧', '🦷', '🍕', '👽', '🧦', '🪱', '🥑', '🛸', '🦶', '💅'];
   const IDLE_HINT = 'drop a photo here, or paste one with Ctrl+V';
@@ -49,6 +74,7 @@
     eyeL: $('#eyeL'), eyeR: $('#eyeR'), mouth: $('#mouth'),
     bubble: $('#bubble'), name: $('#nameInput'), nametag: $('#nametag'),
     lvl: $('#lvl'), xp: $('#xpbar'), file: $('#fileInput'),
+    rank: $('#rankTag'), levelup: $('#levelup'), nextRank: $('#nextRank'),
     count: $('#count'), status: $('#status'), panel: $('#panel'),
     particles: $('#particles'), floaters: $('#floaters'),
     pick: $('#pickBtn'), nameBtn: $('#nameBtn'), adjust: $('#adjustBtn'),
@@ -599,9 +625,12 @@
       el.bubble.classList.remove('show');
     }, 950);
 
+    const before = levelOf(state.count);
     state.count++;
     paintCount();
     save();
+    const after = levelOf(state.count);
+    if (after > before) levelUp(after, rankOf(before).id !== rankOf(after).id);
     if (clip) {
       playVoice(clip);    // los clips ya son gemidos de verdad: el sintetizado sobra
     } else {
@@ -626,6 +655,57 @@
       el.particles.appendChild(s);
     }
     while (el.particles.childElementCount > 40) el.particles.firstElementChild.remove();
+  }
+
+  /* -------------------------------------------------------------- de nivel */
+
+  let lvlTimer = null;
+
+  // Subir de nivel tiene que ser un momento, no un número que cambia sin avisar:
+  // cartel, papelitos, sacudón y sonido. Cambiar de RANGO es todo eso pero más
+  // grande y más largo, para que se note la diferencia entre uno y otro.
+  function levelUp(lvl, isRank) {
+    const rank = rankOf(lvl);
+
+    el.levelup.textContent = '';
+    const top = document.createElement('b');
+    const big = document.createElement('span');
+    top.textContent = isRank ? 'NEW RANK' : 'LEVEL UP';
+    big.textContent = isRank ? rank.icon + ' ' + rank.name : 'LV.' + lvl;
+    el.levelup.append(top, big);
+
+    el.levelup.className = 'levelup' + (isRank ? ' levelup--rank' : '');
+    void el.levelup.offsetWidth;                 // reinicia la animación
+    el.levelup.classList.add('show');
+    clearTimeout(lvlTimer);
+    lvlTimer = setTimeout(() => el.levelup.classList.remove('show'), isRank ? 2200 : 1400);
+
+    el.stage.classList.remove('is-levelup');
+    void el.stage.offsetWidth;
+    el.stage.classList.add('is-levelup');
+    setTimeout(() => el.stage.classList.remove('is-levelup'), isRank ? 900 : 620);
+
+    confetti(rank.color, isRank ? 28 : 12);
+    fanfare(isRank);
+  }
+
+  // Papelitos del color del rango. Van por el mismo contenedor que los emojis del
+  // click, pero son cuadraditos: con emojis se confunden con el burst de siempre.
+  function confetti(color, n) {
+    for (let i = 0; i < n; i++) {
+      const s = document.createElement('span');
+      s.className = 'conf';
+      s.style.background = i % 4 === 0 ? '#fff' : color;
+      s.style.left = rand(12, 88) + '%';
+      s.style.top = rand(26, 46) + '%';
+      s.style.setProperty('--px', rand(-150, 150).toFixed(0) + 'px');
+      s.style.setProperty('--py', rand(-200, -70).toFixed(0) + 'px');
+      s.style.setProperty('--pr', rand(-540, 540).toFixed(0) + 'deg');
+      s.style.animationDelay = (i * 14) + 'ms';
+      s.addEventListener('animationend', () => s.remove());
+      el.particles.appendChild(s);
+    }
+    while (el.particles.childElementCount > 70) el.particles.firstElementChild.remove();
   }
 
   /* --------------------------------------------------------------- sonido */
@@ -886,6 +966,39 @@
     air.start(t, rand(0, 0.15)); air.stop(t + 0.09);
   }
 
+  // Arpegio ascendente al subir de nivel. Entra 280 ms después del click: los
+  // primeros 180 ms ya son del latigazo y el slap, y encimado no se oye ninguno.
+  function fanfare(big) {
+    if (!state.sound) return;
+    withAudio((a) => {
+      const t0 = a.currentTime + 0.28;
+      const notes = big ? [523.25, 659.25, 783.99, 1046.5, 1318.5] : [659.25, 830.61, 987.77];
+      notes.forEach((f, i) => {
+        const t = t0 + i * 0.075;
+        const o = a.createOscillator();
+        o.type = 'triangle';
+        o.frequency.setValueAtTime(f, t);
+        const g = a.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(big ? 0.28 : 0.18, t + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
+        o.connect(g).connect(a.destination);
+        o.start(t); o.stop(t + 0.4);
+      });
+      if (!big) return;
+      const t = t0 + notes.length * 0.075;      // el brillo de arriba, sólo al cambiar de rango
+      const sh = a.createBufferSource(); sh.buffer = noise(a);
+      const bp = a.createBiquadFilter();
+      bp.type = 'bandpass'; bp.frequency.value = 6200; bp.Q.value = 0.8;
+      const g = a.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.13, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+      sh.connect(bp).connect(g).connect(a.destination);
+      sh.start(t, rand(0, 0.1)); sh.stop(t + 0.55);
+    });
+  }
+
   // Un gemido sintetizado con formantes, por debajo de la voz del navegador.
   // Es lo que le saca el aire de "asistente de GPS": un oscilador diente de sierra
   // con vibrato pasado por tres pasa-banda que se abren de "mm" a "ah".
@@ -1027,9 +1140,27 @@
   }
 
   function paintCount() {
+    const lvl = levelOf(state.count);
+    const rank = rankOf(lvl);
     el.count.textContent = String(state.count).padStart(6, '0');
-    el.lvl.textContent = 'LV.' + (Math.floor(state.count / 10) + 1);
-    el.xp.style.width = ((state.count % 10) * 10) + '%';
+    el.lvl.textContent = 'LV.' + lvl;
+    el.xp.style.width = ((state.count % LVL_STEP) * (100 / LVL_STEP)) + '%';
+    el.rank.textContent = rank.icon + ' ' + rank.name;
+    el.stage.dataset.rank = rank.id;
+    el.stage.style.setProperty('--rank', rank.color);
+
+    // Cuánto falta para el próximo rango: da algo que perseguir en vez de un número
+    // suelto. Va abajo del contador y no en un title, que en el celular no existe.
+    const next = RANKS.find((x) => x.at > lvl);
+    el.nextRank.textContent = '';
+    if (next) {
+      const left = (next.at - lvl) * LVL_STEP - (state.count % LVL_STEP);
+      const strong = document.createElement('b');
+      strong.textContent = next.icon + ' ' + next.name;
+      el.nextRank.append(left + ' more smack' + (left === 1 ? '' : 's') + ' to ', strong);
+    } else {
+      el.nextRank.textContent = 'maxed out. there is nothing after this.';
+    }
   }
 
   function paintSound() {

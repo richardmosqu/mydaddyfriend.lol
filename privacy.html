@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Privacy · mydaddyfriend.lol</title>
+<meta name="description" content="What mydaddyfriend.lol does with your data. Short version: nothing. Your photo never leaves your browser.">
+<meta name="theme-color" content="#ffe000">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23ffe000'/%3E%3Cpath d='M6 12 4 3l9 5zM26 12l2-9-9 5z' fill='%2314110f'/%3E%3Cellipse cx='16' cy='17' rx='9' ry='11' fill='%23eeb489' stroke='%2314110f' stroke-width='2'/%3E%3Cpath d='M10 15q3-3 5 0M17 15q3-3 5 0' stroke='%2314110f' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3Cellipse cx='16' cy='23' rx='3.5' ry='4.5' fill='%233d0a17'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css?v=19">
+</head>
+<body>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker__track">
+    <span>⚠️ YOUR PHOTO NEVER LEAVES YOUR BROWSER ⚠️ NO COOKIES ⚠️ NO ANALYTICS ⚠️ NOTHING IS UPLOADED ⚠️ </span>
+    <span>⚠️ YOUR PHOTO NEVER LEAVES YOUR BROWSER ⚠️ NO COOKIES ⚠️ NO ANALYTICS ⚠️ NOTHING IS UPLOADED ⚠️ </span>
+  </div>
+</div>
+
+<main class="page">
+  <h1 class="page__title">Privacy</h1>
+  <p class="page__date">Last updated: 6 September 2026</p>
+
+  <div class="page__box page__box--big">
+    <p><b>Short version:</b> this site collects nothing about you. No account, no cookies,
+    no analytics, no ads, no tracking. Your friend's photo is never uploaded — everything
+    happens inside your browser, on your device.</p>
+  </div>
+
+  <h2>Your photo</h2>
+  <p>When you add a photo it is <b>never sent anywhere</b>. There is no server to send it
+  to: this site is a set of static files with no backend.</p>
+  <ul>
+    <li>The face detection runs <b>in your browser</b>, using a model file downloaded from
+      this site along with the page. The photo is not analysed by any outside service.</li>
+    <li>The photo is kept in your browser's <code>localStorage</code> so the doll is still
+      there when you come back. It is downscaled to 1200 px first if it's bigger.
+      <code>localStorage</code> is readable only by this site, in that one browser, on that
+      one device.</li>
+    <li>Nobody else can see it. Not other visitors, not me, not anyone.</li>
+  </ul>
+
+  <h2>What is stored on your device</h2>
+  <p>One <code>localStorage</code> entry, under the key <code>mdf.v2</code>:</p>
+  <ul>
+    <li>the photo, and the eye and mouth coordinates that were detected in it</li>
+    <li>any manual adjustments you made in the <i>fix the face</i> panel</li>
+    <li>the skin and hair colours</li>
+    <li>the pose, haircut, held item and gear</li>
+    <li>the name you typed and the click counter</li>
+    <li>whether sound is on</li>
+  </ul>
+  <p>None of it is transmitted. To delete all of it, press <b>🗑️ clear</b> on the page, or
+  clear this site's data in your browser settings. Uninstalling nothing, no email required.</p>
+
+  <h2>Cookies</h2>
+  <p>There are none. The site sets no cookies, and there is no third-party script that could
+  set one either.</p>
+
+  <h2>Analytics and ads</h2>
+  <p>There are none of those either. No Google Analytics, no pixels, no ad network, no
+  fingerprinting. The <span class="mono">hits</span> counter at the bottom of the page is a
+  joke — it is a fixed number, it counts nothing.</p>
+
+  <h2>Third parties</h2>
+  <p>The page makes <b>no requests to any other domain</b>. Everything it loads — the code,
+  the styles, the sounds, the face-detection model — comes from this site's own address.
+  There is deliberately no CDN, so no outside company learns that you opened the page.</p>
+  <p>The links at the bottom of the page do go elsewhere (GitHub, X, and the tip link).
+  Those are separate companies with their own privacy policies, and this policy stops where
+  their sites begin. Nothing about you is passed to them beyond the fact that you clicked
+  a link, which is how links work.</p>
+
+  <h2>What the web host sees</h2>
+  <p>This is the one thing that is not in my hands, and it applies to every website you have
+  ever visited. The site is served by <b>GitHub Pages</b>. To send you the page at all, their
+  servers receive your IP address and your browser's user-agent string, and may keep them in
+  server logs. I have no access to those logs and get no report from them. That processing is
+  covered by
+  <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">GitHub's Privacy Statement</a>
+  and, for the Pages service specifically, their
+  <a href="https://docs.github.com/site-policy/github-terms/github-terms-of-service" target="_blank" rel="noopener noreferrer">Terms of Service</a>.</p>
+
+  <h2>Who this site is for</h2>
+  <p>It's a joke site with adult humour, meant for adults. It isn't directed at children.
+  Since no data is collected from anyone, no data is collected from children either.</p>
+
+  <h2>The photo you upload is somebody else's face</h2>
+  <p>Not a legal point, a decent-person point: the photo stays on your device, but the
+  person in it still didn't ask to be a doll in lingerie. Use pictures of friends who will
+  laugh, and don't post the result anywhere they wouldn't want it. That part is on you, not
+  on the software.</p>
+
+  <h2>Changes</h2>
+  <p>If any of this ever stops being true — if ads or analytics get added — this page gets
+  rewritten and the date at the top changes. The full history of every version is public in
+  the repository, so you can check whether I actually did.</p>
+
+  <h2>Contact</h2>
+  <p>Open an issue on
+  <a href="https://github.com/richardmosqu/mydaddyfriend.lol/issues" target="_blank" rel="noopener noreferrer">GitHub</a>
+  or say something on
+  <a href="https://x.com/Richardmosqued" target="_blank" rel="noopener noreferrer">X</a>.</p>
+
+  <div class="page__box">
+    <p>Every claim on this page can be checked yourself: open your browser's developer tools,
+    go to the Network tab, and use the site. You will not see a single request leave this
+    domain. The whole source is
+    <a href="https://github.com/richardmosqu/mydaddyfriend.lol" target="_blank" rel="noopener noreferrer">on GitHub</a>.</p>
+  </div>
+
+  <p class="page__back"><a class="foot__link" href="./">← back to smacking</a></p>
+</main>
+
+</body>
+</html>
