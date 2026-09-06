@@ -264,14 +264,29 @@
     <button class="btn btn--ghost" id="resetBtn" type="button">🗑️ clear</button>
   </div>
 
+  <div class="customizer">
+    <div class="customizer__row">
+      <span class="customizer__label">SKIN</span>
+      <div class="swatches" id="skinSwatches"></div>
+      <input type="color" id="skinCustom" class="swatch swatch--custom" value="#c98a5c" aria-label="Custom skin color">
+    </div>
+    <div class="customizer__row">
+      <span class="customizer__label">HAIR</span>
+      <div class="swatches" id="hairSwatches"></div>
+      <input type="color" id="hairCustom" class="swatch swatch--custom" value="#2b1b12" aria-label="Custom hair color">
+    </div>
+    <button class="customizer__auto" id="autoColors" type="button">↺ take the colors from the photo</button>
+  </div>
+
   <p class="status" id="status">drop a photo here, or paste one with Ctrl+V</p>
 
   <section class="panel" id="panel" hidden>
     <div class="panel__bar">
-      <span>weird_settings.exe</span>
+      <span>settings.exe</span>
       <button class="panel__x" id="panelX" type="button" aria-label="Close settings">✕</button>
     </div>
     <div class="panel__body">
+      <h3 class="panel__h">face</h3>
       <p class="panel__note">if the face came out crooked, line it up yourself (the expression stays on while you adjust)</p>
       <div class="grid">
         <label>zoom <input type="range" id="a_zoom" min="0.5" max="2.5" step="0.01" value="1"></label>
@@ -284,6 +299,13 @@
         <label>mouth size <input type="range" id="a_mouthS" min="0.5" max="1.9" step="0.01" value="1"></label>
       </div>
       <button class="btn btn--ghost" id="panelReset" type="button">↺ back to auto</button>
+
+      <h3 class="panel__h">voice</h3>
+      <p class="panel__note">it uses the voices your device already has. some sound way better than others — try a few.</p>
+      <div class="voicerow">
+        <select id="voiceSel" aria-label="Voice"></select>
+        <button class="btn btn--ghost" id="voiceTest" type="button">▶ test</button>
+      </div>
     </div>
   </section>
 

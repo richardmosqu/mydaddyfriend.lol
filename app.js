@@ -8,12 +8,33 @@
   const KEY = 'mdf.v2';
   const MODELS = 'vendor/face-api/models';
 
+  // t = lo que se lee en el globo, s = cómo se pronuncia.
+  // Las comas y los puntos suspensivos son lo que hace que no suene a lector de PDF.
   const PHRASES = [
-    'YES DADDY', "YOU'RE MY DADDY", 'I LOVE THIS', 'OH MY GOD DADDY',
-    'MORE DADDY MORE', 'THANK YOU DADDY', 'AAAAH DADDY', 'HARDER DADDY',
-    'DADDY DADDY DADDY', 'I LIVE FOR THIS', 'YES YES YES', 'MMMM DADDY',
-    'YOU ARE THE BEST DADDY', 'PLEASE DADDY', "DON'T STOP DADDY", 'ONE MORE TIME DADDY'
+    { t: 'YES DADDY',              s: 'yesss... daddy' },
+    { t: "YOU'RE MY DADDY",        s: "mmh, you're my daddy" },
+    { t: 'I LOVE THIS',            s: 'ahh, I love this' },
+    { t: 'OH MY GOD DADDY',        s: 'oh my god... daddy' },
+    { t: 'MORE DADDY MORE',        s: 'more, daddy... more' },
+    { t: 'THANK YOU DADDY',        s: 'thank you, daddy' },
+    { t: 'AAAAH DADDY',            s: 'aaah... daddy' },
+    { t: 'HARDER DADDY',           s: 'harder, daddy' },
+    { t: 'DADDY DADDY DADDY',      s: 'daddy, daddy, daddy' },
+    { t: 'I LIVE FOR THIS',        s: 'mmh, I live for this' },
+    { t: 'YES YES YES',            s: 'yes, yes, yesss' },
+    { t: 'MMMM DADDY',             s: 'mmmm... daddy' },
+    { t: 'YOU ARE THE BEST DADDY', s: "you're the best, daddy" },
+    { t: 'PLEASE DADDY',           s: 'please... daddy' },
+    { t: "DON'T STOP DADDY",       s: "don't stop, daddy" },
+    { t: 'ONE MORE TIME DADDY',    s: 'one more time, daddy' }
   ];
+
+  // paletas del creador de personaje
+  const SKINS = ['#ffe1cc', '#f8d2ae', '#eeb98e', '#dda173', '#c98a5c',
+                 '#ab6d43', '#8b5433', '#6d3d24', '#502b1a', '#361d12'];
+  const HAIRS = ['#0d0a09', '#2b1b12', '#4a2f1d', '#7b4a24', '#a9713a',
+                 '#d9a441', '#efdcae', '#9b9b9b', '#a8331f', '#ff2e88'];
+
   const EMOJI = ['💗', '✨', '💦', '😩', '⭐', '💫', '🔥', '💕', '🫠'];
   const FLOATERS = ['🍌', '👁️', '🧀', '🐛', '🫧', '🦷', '🍕', '👽', '🧦', '🪱', '🥑', '🛸', '🦶', '💅'];
   const IDLE_HINT = 'drop a photo here, or paste one with Ctrl+V';
@@ -32,7 +53,10 @@
     particles: $('#particles'), floaters: $('#floaters'),
     pick: $('#pickBtn'), nameBtn: $('#nameBtn'), adjust: $('#adjustBtn'),
     sound: $('#soundBtn'), reset: $('#resetBtn'),
-    panelX: $('#panelX'), panelReset: $('#panelReset')
+    panelX: $('#panelX'), panelReset: $('#panelReset'),
+    skinSw: $('#skinSwatches'), hairSw: $('#hairSwatches'),
+    skinCustom: $('#skinCustom'), hairCustom: $('#hairCustom'), autoColors: $('#autoColors'),
+    voiceSel: $('#voiceSel'), voiceTest: $('#voiceTest')
   };
 
   const ctx = el.canvas.getContext('2d', { willReadFrequently: true });
@@ -48,6 +72,9 @@
     skin: null,         // color de piel del centro de la cara
     skinEdge: null,     // color del borde de la cara -> pinta el cuerpo del avatar
     hair: null,         // color de pelo muestreado -> pinta el pelo del avatar
+    skinPick: null,     // color elegido a mano (null = el de la foto)
+    hairPick: null,
+    voice: '',          // voiceURI elegido a mano ('' = la que elige solo)
     name: '', count: 0, sound: true
   };
 
@@ -63,6 +90,7 @@
       localStorage.setItem(KEY, JSON.stringify({
         src: state.src, det: state.det, adj: state.adj,
         skin: state.skin, skinEdge: state.skinEdge, hair: state.hair,
+        skinPick: state.skinPick, hairPick: state.hairPick, voice: state.voice,
         name: state.name, count: state.count, sound: state.sound
       }));
     } catch (e) { /* sin espacio o modo privado: no pasa nada */ }
@@ -79,6 +107,9 @@
     state.skin = data.skin || null;
     state.skinEdge = data.skinEdge || null;
     state.hair = data.hair || null;
+    state.skinPick = data.skinPick || null;
+    state.hairPick = data.hairPick || null;
+    state.voice = data.voice || '';
     el.name.value = state.name;
     paintCount();
     paintSound();
@@ -328,23 +359,89 @@
 
   // el cuerpo del avatar se pinta con el tono de piel de la foto, así no parece un casco
   function paintBody() {
-    const body = state.skinEdge || state.skin;
+    const body = state.skinPick || state.skinEdge || state.skin;
     if (body) {
-      const c = body.match(/\d+/g).map(Number);
+      const c = body.match(/[\d.]+/g).map(Number);
       el.stage.style.setProperty('--skin-body', body);
       el.stage.style.setProperty('--skin-shade', css([c[0] * 0.78, c[1] * 0.66, c[2] * 0.6]));
     }
-    if (state.hair) {
-      let c = state.hair.match(/\d+/g).map(Number);
-      // el pelo tiene que quedar más oscuro que la piel, si no el personaje sale de un solo color
-      if (body) {
-        const sk = body.match(/\d+/g).map(Number);
+    const hair = state.hairPick || state.hair;
+    if (hair) {
+      let c = hair.match(/[\d.]+/g).map(Number);
+      // si el pelo lo sacamos de la foto puede salir casi igual a la piel; se lo oscurece.
+      // Si lo eligió el usuario se respeta tal cual (si quiere rubio platino, rubio platino).
+      if (!state.hairPick && body) {
+        const sk = body.match(/[\d.]+/g).map(Number);
         const top = lum(sk) * 0.7, L = lum(c) || 1;
         if (L > top) c = c.map(v => v * top / L);
       }
       el.stage.style.setProperty('--hair', css(c));
       el.stage.style.setProperty('--hair-hi', css([c[0] * 1.55 + 18, c[1] * 1.55 + 15, c[2] * 1.55 + 13]));
     }
+    paintSwatches();
+  }
+
+  const rgb2hex = (rgb) => '#' + rgb.match(/[\d.]+/g).slice(0, 3)
+    .map(v => Math.round(+v).toString(16).padStart(2, '0')).join('');
+
+  const hex2rgb = (h) => {
+    const n = parseInt(h.slice(1), 16);
+    return `rgb(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255})`;
+  };
+
+  function buildSwatches() {
+    const make = (host, list, kind) => {
+      for (const hex of list) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'swatch';
+        b.style.background = hex;
+        b.dataset.hex = hex;
+        b.setAttribute('aria-pressed', 'false');
+        b.setAttribute('aria-label', kind + ' ' + hex);
+        b.addEventListener('click', () => setColour(kind, hex));
+        host.appendChild(b);
+      }
+    };
+    make(el.skinSw, SKINS, 'skin');
+    make(el.hairSw, HAIRS, 'hair');
+  }
+
+  function setColour(kind, hex) {
+    if (kind === 'skin') state.skinPick = hex2rgb(hex);
+    else state.hairPick = hex2rgb(hex);
+    paintBody();
+    save();
+  }
+
+  function paintSwatches() {
+    const mark = (host, picked) => {
+      for (const b of host.children) {
+        b.setAttribute('aria-pressed', String(picked === hex2rgb(b.dataset.hex)));
+      }
+    };
+    mark(el.skinSw, state.skinPick);
+    mark(el.hairSw, state.hairPick);
+    const cur = (pickv, fallback) => pickv || fallback;
+    const sk = cur(state.skinPick, state.skinEdge || state.skin);
+    const ha = cur(state.hairPick, state.hair);
+    if (sk) el.skinCustom.value = rgb2hex(sk);
+    if (ha) el.hairCustom.value = rgb2hex(ha);
+  }
+
+  function autoColours() {
+    state.skinPick = null;
+    state.hairPick = null;
+    if (!state.skinEdge && !state.skin) {
+      el.stage.style.removeProperty('--skin-body');
+      el.stage.style.removeProperty('--skin-shade');
+    }
+    if (!state.hair) {
+      el.stage.style.removeProperty('--hair');
+      el.stage.style.removeProperty('--hair-hi');
+    }
+    paintBody();
+    save();
   }
 
   // el pelo se muestrea en un arco por encima de los ojos, sobre la foto original
@@ -462,7 +559,7 @@
     if (!el.stage.classList.contains('has-face')) { el.file.click(); return; }
 
     const phrase = pick(PHRASES);
-    el.bubble.textContent = phrase;
+    el.bubble.textContent = phrase.t;
     el.bubble.style.setProperty('--rot', rand(-8, 8).toFixed(1) + 'deg');
     el.bubble.classList.add('show');
     el.stage.style.setProperty('--open', rand(0.82, 1.25).toFixed(2));
@@ -483,6 +580,7 @@
     save();
     burst();
     whipCrack();
+    gasp();
     speak(phrase);
   }
 
@@ -504,13 +602,79 @@
 
   /* --------------------------------------------------------------- sonido */
 
-  function speak(text) {
+  // Las voces del navegador varían muchísimo por sistema. Se busca una femenina en
+  // inglés en vez de usar la de por defecto, que suele ser la masculina genérica.
+  const FEMALE = [
+    'samantha', 'ava', 'allison', 'susan', 'joanna', 'zoe', 'serena', 'karen',
+    'moira', 'tessa', 'fiona', 'catherine', 'nicky', 'kate', 'martha',
+    'zira', 'hazel', 'eva', 'aria', 'jenny', 'michelle', 'sonia',
+    'google us english', 'google uk english female', 'female'
+  ];
+  const MALE = [
+    'alex', 'daniel', 'fred', 'tom', 'david', 'mark', 'rishi', 'oliver', 'arthur',
+    'aaron', 'junior', 'ralph', 'bruce', 'guy', 'eric', 'roger', 'ryan', 'male'
+  ];
+
+  let voices = [], autoVoice = null;
+
+  function scoreVoice(v) {
+    const n = (v.name || '').toLowerCase();
+    let sc = 0;
+    const fi = FEMALE.findIndex(f => n.includes(f));
+    if (fi >= 0) sc += 100 - fi;
+    if (MALE.some(m => n.includes(m))) sc -= 200;
+    if (/^en[-_]us/i.test(v.lang)) sc += 10;
+    else if (/^en[-_]gb/i.test(v.lang)) sc += 6;
+    if (v.localService === false) sc += 3;   // las de red suelen sonar bastante mejor
+    return sc;
+  }
+
+  function refreshVoices() {
+    try { voices = (speechSynthesis.getVoices() || []).filter(v => /^en/i.test(v.lang || '')); }
+    catch (e) { voices = []; }
+    autoVoice = voices.length ? voices.slice().sort((a, b) => scoreVoice(b) - scoreVoice(a))[0] : null;
+    fillVoiceSelect();
+  }
+
+  function fillVoiceSelect() {
+    if (!el.voiceSel) return;
+    el.voiceSel.textContent = '';
+    const auto = document.createElement('option');
+    auto.value = '';
+    auto.textContent = voices.length
+      ? 'auto — ' + (autoVoice ? autoVoice.name : 'default')
+      : 'no voices on this device';
+    el.voiceSel.appendChild(auto);
+    for (const v of voices) {
+      const o = document.createElement('option');
+      o.value = v.voiceURI;
+      o.textContent = v.name + ' (' + v.lang + ')';
+      el.voiceSel.appendChild(o);
+    }
+    el.voiceSel.value = state.voice && voices.some(v => v.voiceURI === state.voice) ? state.voice : '';
+  }
+
+  function currentVoice() {
+    if (state.voice) {
+      const v = voices.find(x => x.voiceURI === state.voice);
+      if (v) return v;
+    }
+    return autoVoice;
+  }
+
+  function speak(phrase) {
     if (!state.sound || !('speechSynthesis' in window)) return;
     try {
-      const u = new SpeechSynthesisUtterance(text.toLowerCase());
+      const u = new SpeechSynthesisUtterance(phrase.s || phrase.t.toLowerCase());
       u.lang = 'en-US';
-      u.pitch = rand(0.5, 1.6);
-      u.rate = rand(0.85, 1.15);
+      // aislado: si el navegador rechaza la voz, igual tiene que hablar con la de por defecto
+      try {
+        const v = currentVoice();
+        if (v) { u.voice = v; u.lang = v.lang || u.lang; }
+      } catch (e) { /* seguimos con la voz de por defecto */ }
+      // rango angosto a propósito: estirar mucho el pitch es lo que la hacía sonar a robot
+      u.pitch = rand(1.05, 1.35);
+      u.rate = rand(0.88, 1.02);
       speechSynthesis.cancel();
       speechSynthesis.speak(u);
     } catch (e) { /* sin voz, no pasa nada */ }
@@ -574,6 +738,59 @@
     } catch (e) { /* sin audio, no pasa nada */ }
   }
 
+  // Un gemido sintetizado con formantes, por debajo de la voz del navegador.
+  // Es lo que le saca el aire de "asistente de GPS": un oscilador diente de sierra
+  // con vibrato pasado por tres pasa-banda que se abren de "mm" a "ah".
+  function gasp() {
+    if (!state.sound) return;
+    try {
+      const a = ac(), t0 = a.currentTime + 0.1, dur = rand(0.42, 0.62);
+      const f0 = rand(196, 248);   // rango de voz femenina
+
+      const osc = a.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(f0 * 0.9, t0);
+      osc.frequency.linearRampToValueAtTime(f0 * 1.14, t0 + dur * 0.45);
+      osc.frequency.linearRampToValueAtTime(f0 * 0.86, t0 + dur);
+
+      const lfo = a.createOscillator();          // sin vibrato suena a sirena
+      lfo.frequency.value = rand(4.8, 6.4);
+      const lfoGain = a.createGain();
+      lfoGain.gain.value = f0 * 0.03;
+      lfo.connect(lfoGain).connect(osc.frequency);
+
+      const out = a.createGain();
+      out.gain.setValueAtTime(0.0001, t0);
+      out.gain.exponentialRampToValueAtTime(0.13, t0 + 0.09);
+      out.gain.setValueAtTime(0.13, t0 + dur * 0.6);
+      out.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      out.connect(a.destination);
+
+      // [de, hacia, Q, volumen] por formante: la boca se abre mientras suena
+      for (const [from, to, q, g] of [[380, 800, 3.4, 0.9], [1080, 1180, 2.6, 0.5], [2700, 2850, 2.2, 0.22]]) {
+        const bp = a.createBiquadFilter();
+        bp.type = 'bandpass'; bp.Q.value = q;
+        bp.frequency.setValueAtTime(from, t0);
+        bp.frequency.linearRampToValueAtTime(to, t0 + dur * 0.5);
+        const gain = a.createGain(); gain.gain.value = g;
+        osc.connect(bp).connect(gain).connect(out);
+      }
+
+      const air = a.createBufferSource();        // un poco de aire encima
+      air.buffer = noise(a); air.loop = true;
+      const hp = a.createBiquadFilter();
+      hp.type = 'highpass'; hp.frequency.value = 2600;
+      const ag = a.createGain();
+      ag.gain.setValueAtTime(0.0001, t0);
+      ag.gain.exponentialRampToValueAtTime(0.02, t0 + 0.12);
+      ag.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      air.connect(hp).connect(ag).connect(a.destination);
+
+      air.start(t0); osc.start(t0); lfo.start(t0);
+      air.stop(t0 + dur + 0.05); osc.stop(t0 + dur + 0.05); lfo.stop(t0 + dur + 0.05);
+    } catch (e) { /* sin audio, no pasa nada */ }
+  }
+
   /* ------------------------------------------------------------------- ui */
 
   let statusTimer = null;
@@ -619,6 +836,7 @@
     for (const p of ['--skin-body', '--skin-shade', '--hair', '--hair-hi']) {
       el.stage.style.removeProperty(p);
     }
+    paintBody();   // si eligió colores a mano, se vuelven a aplicar
     el.stage.classList.remove('has-face', 'is-moan');
     el.bubble.classList.remove('show');
     openPanel(false);
@@ -655,6 +873,22 @@
   });
 
   el.reset.addEventListener('click', resetAll);
+
+  el.skinCustom.addEventListener('input', () => setColour('skin', el.skinCustom.value));
+  el.hairCustom.addEventListener('input', () => setColour('hair', el.hairCustom.value));
+  el.autoColors.addEventListener('click', autoColours);
+
+  el.voiceSel.addEventListener('change', () => {
+    state.voice = el.voiceSel.value;
+    save();
+  });
+  el.voiceTest.addEventListener('click', () => {
+    const muted = !state.sound;
+    state.sound = true;              // la prueba se escucha aunque esté en mute
+    gasp();
+    speak(pick(PHRASES));
+    if (muted) state.sound = false;
+  });
 
   for (const k in sliders) {
     if (!sliders[k]) continue;
@@ -712,7 +946,15 @@
   /* ------------------------------------------------------------- arranque */
 
   sprinkle();
+  buildSwatches();
   restore();
+
+  // en Chrome la lista de voces llega después de cargar la página
+  if ('speechSynthesis' in window) {
+    refreshVoices();
+    try { speechSynthesis.addEventListener('voiceschanged', refreshVoices); }
+    catch (e) { speechSynthesis.onvoiceschanged = refreshVoices; }
+  }
 
   // cuando el navegador está tranquilo, se va bajando la librería en segundo plano
   // así elegir la foto no tiene que esperar 1.3 MB (una sola descarga, no dos)

@@ -13,7 +13,10 @@ Todo pasa **dentro del navegador**: la foto nunca se sube a ningún servidor.
 
 1. `📸 add a face` (o arrastrás la foto a la página, o la pegás con `Ctrl+V`).
 2. `✏️ name it` y le escribís el nombre.
-3. Lo apretás. Y lo volvés a apretar. Cada 10 clicks sube de nivel.
+3. Si el tono de piel o de pelo no te convence, lo cambiás en la tira de colores
+   (10 tonos de cada uno, más un selector libre). `↺ take the colors from the photo`
+   vuelve a los que sacó de la foto.
+4. Lo apretás. Y lo volvés a apretar. Cada 10 clicks sube de nivel.
 
 La foto, el nombre y el contador quedan guardados en el `localStorage` del navegador,
 así que siguen ahí cuando volvés. `🗑️ clear` los limpia.
@@ -36,10 +39,25 @@ así que siguen ahí cuando volvés. `🗑️ clear` los limpia.
   los ojos. Por eso el cuerpo empalma con la cara en vez de parecer un casco.
 - Si no encuentra ninguna cara, hace un recorte centrado y abre el panel de ajustes
   para acomodarla a mano con los sliders.
-- El "yes daddy" lo dice la `SpeechSynthesis` del navegador, con tono y velocidad al
-  azar. El latigazo es Web Audio puro: ruido blanco por un pasa-banda que barre de
+- Los colores se pueden pisar a mano desde la tira de swatches. Lo elegido a mano gana
+  sobre lo muestreado y queda guardado; el pelo elegido a mano no se oscurece (si querés
+  rubio platino o rosa, queda así).
+- El "yes daddy" lo dice la `SpeechSynthesis` del navegador, pero con tres cosas encima
+  para que no suene a lector de PDF:
+  1. **Elige una voz femenina en inglés** en vez de la de por defecto: puntúa las voces
+     del sistema contra una lista de nombres femeninos conocidos (Samantha, Zira, Ava,
+     Karen, Google US English…) y penaliza los masculinos. En el panel hay un `select`
+     para elegir otra, porque cuáles hay depende del sistema operativo.
+  2. **Cada frase tiene una versión hablada**: en el globo se lee `YES DADDY` pero se
+     pronuncia `yesss... daddy`. Las comas y los puntos suspensivos son lo que le da
+     entonación. El pitch varía poco (1.05–1.35) a propósito: estirarlo mucho es
+     justamente lo que la hacía sonar a robot.
+  3. **Un gemido sintetizado por debajo**, con formantes: un oscilador diente de sierra
+     con vibrato pasado por tres pasa-banda que se abren de "mm" a "ah", más un poco de
+     ruido de aire. Eso es lo que le pone cuerpo humano.
+- El latigazo también es Web Audio puro: ruido blanco por un pasa-banda que barre de
   420 Hz a 3.8 kHz (el silbido), un chasquido filtrado en agudos y un golpe grave de
-  170 a 55 Hz. No hay ningún archivo de audio.
+  170 a 55 Hz. No hay ningún archivo de audio en todo el proyecto.
 
 ## Correrlo
 
