@@ -760,6 +760,10 @@ body.has-whip input,body.has-whip select,body.has-whip textarea{cursor:auto}
 .foot__link--gh:hover{transform:rotate(-1.2deg) translate(-1px,-1px)}
 .foot__link--x{background:#000;transform:rotate(1.2deg)}
 .foot__link--x:hover{transform:rotate(1.2deg) translate(-1px,-1px)}
+/* el único botón del pie que pide algo: va en el rojo de Ko-fi para que se separe
+   de los otros dos, que son negros, y torcido para el otro lado */
+.foot__link--kofi{background:#ff5e5b;transform:rotate(-.9deg)}
+.foot__link--kofi:hover{transform:rotate(-.9deg) translate(-1px,-1px)}
 
 .foot__fine{font-size:.75rem;opacity:.8}
 .foot__fine a{color:inherit;text-underline-offset:2px;text-decoration-thickness:1px;text-decoration-color:rgba(107,95,76,.5)}
