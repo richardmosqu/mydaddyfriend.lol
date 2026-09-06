@@ -1,51 +1,78 @@
-# Las frases
+# Los sonidos
 
-Los `.mp3` de esta carpeta son lo que dice el muñeco. Se reproducen por el mismo
-`AudioContext` que el latigazo, así que suenan igual en todos los navegadores.
+Todo lo que suena en la página está acá, y se reproduce por el mismo `AudioContext`,
+así que anda igual en todos los navegadores.
 
-Antes esto lo hacía la `SpeechSynthesis` del navegador y era un desastre: en
-varios navegadores emitía la locución y no sonaba nada, sin dar ningún error.
-Ahora la voz del navegador quedó sólo como respaldo, por si esta carpeta no está.
+| Archivo | Qué es |
+|---|---|
+| `whip.mp3` | El latigazo de cada click |
+| `oh-yeah-daddy.mp3` | Frase |
+| `ahh.mp3` | Frase |
+| `daddy-chill.mp3` | Frase |
+| `moan-small.mp3` | Gemido |
+| `moan-anime.mp3` | Gemido |
+| `money-rain.mp3` | La canción del Money rain (14 s) |
 
-## Poner tu propia voz
-
-Grabá los audios (cortitos, 1 a 2 segundos) y reemplazá los archivos **con el
-mismo nombre**. No hay que tocar código:
-
-```
-yes-daddy.mp3              i-live-for-this.mp3
-youre-my-daddy.mp3         yes-yes-yes.mp3
-i-love-this.mp3            mmmm-daddy.mp3
-oh-my-god-daddy.mp3        youre-the-best-daddy.mp3
-more-daddy-more.mp3        please-daddy.mp3
-thank-you-daddy.mp3        dont-stop-daddy.mp3
-aaah-daddy.mp3             one-more-time-daddy.mp3
-harder-daddy.mp3           daddy-daddy-daddy.mp3
-```
-
-Podés reemplazar los que quieras; los que dejes quedan con la voz actual. Se
-suben arrastrándolos en GitHub (`Add file` → `Upload files`).
-
-Para cambiar las frases o los textos que salen en el globo, editá `voice.json`:
+`voice.json` es el que manda: `whip` dice cuál es el latigazo, y cada entrada de
+`clips` dice qué archivo suena y qué texto aparece en el globo.
 
 ```json
-{ "file": "lo-que-sea.mp3", "text": "LO QUE SALE EN EL GLOBO" }
+{
+  "whip": "whip.mp3",
+  "clips": [
+    { "file": "oh-yeah-daddy.mp3", "text": "OH YEAH DADDY" }
+  ]
+}
 ```
 
-Usá `.mp3` o `.m4a`. El `.ogg` que exporta WhatsApp no anda en Safari ni en
-iPhone; convertilo con `ffmpeg -i nota.ogg -ac 1 -b:a 64k yes-daddy.mp3`.
+## Agregar o cambiar sonidos
 
-## Cómo se generaron los actuales
+1. Dejá el `.mp3` en esta carpeta.
+2. Agregá su línea en `clips` con el texto que querés que salga en el globo.
 
-Con `pico2wave` (el motor de voz de Android, bastante más natural que espeak) y
-`ffmpeg` para subirle el tono un 9%, recortar los silencios y normalizar:
+No hay que tocar código. Se pueden poner todos los que quieras; en cada click se
+elige uno al azar.
+
+**Poné nombres en minúscula, sin espacios ni acentos.** El látigo original se
+llamaba `Sonido de Látigo 3 - efecto de sonido.mp3` y esa `á` venía en forma
+descompuesta (NFD, como la guarda macOS): son dos caracteres, `a` + tilde, que en
+una URL no coinciden con la `á` de un solo carácter. Eso rompe la descarga en
+algunos servidores sin dar ningún error visible.
+
+## Cambiar la canción del Money rain
+
+Reemplazá `money-rain.mp3`. **La duración del archivo es la duración del efecto**:
+el baile y los billetes duran exactamente lo que dure la canción, así que si ponés
+una de 30 s el botón queda bloqueado 30 s.
+
+La actual son los primeros 14 s del original, con un fundido de salida al final y
+7 dB menos de volumen: venía a -7 dB de nivel medio, siete más alto que las voces,
+y las tapaba al pegarle mientras baila.
 
 ```sh
-pico2wave -l en-US -w /tmp/x.wav "yesss, daddy"
-ffmpeg -i /tmp/x.wav -af "asetrate=16000*1.09,aresample=44100,atempo=1/1.09,\
-silenceremove=start_periods=1:start_silence=0.02:start_threshold=-45dB,\
-areverse,silenceremove=start_periods=1:start_silence=0.02:start_threshold=-45dB,areverse,\
-loudnorm=I=-15:TP=-1.5:LRA=11" -ac 1 -b:a 64k yes-daddy.mp3
+ffmpeg -i original.mp3 -t 14 \
+  -af "volume=-7dB,afade=t=in:st=0:d=0.06,afade=t=out:st=13:d=1" \
+  -ac 1 -ar 44100 -b:a 96k money-rain.mp3
 ```
 
-Son 216 KB en total y se bajan en segundo plano, no al abrir la página.
+## Formatos
+
+`.mp3` y `.m4a` andan en todos lados. El `.ogg` que exporta WhatsApp **no anda en
+Safari ni en iPhone**; convertilo:
+
+```sh
+ffmpeg -i nota.ogg -ac 1 -b:a 64k frase.mp3
+```
+
+## Emparejar niveles
+
+Si un sonido se escucha mucho más bajo que los otros, medilo y subilo la
+diferencia. `loudnorm` no sirve para clips de menos de un segundo: mide mal.
+
+```sh
+ffmpeg -i frase.mp3 -af volumedetect -f null -    # mirá mean_volume
+ffmpeg -i frase.mp3 -af "volume=7dB" -ac 1 -b:a 64k frase-fix.mp3
+```
+
+Los que están ahora quedaron todos entre -17 y -21 dB de nivel medio, con los
+picos por debajo de -0,8 dB. El latigazo va más caliente a propósito, es un golpe.
