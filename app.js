@@ -57,7 +57,7 @@
     skinSw: $('#skinSwatches'), hairSw: $('#hairSwatches'),
     skinCustom: $('#skinCustom'), hairCustom: $('#hairCustom'), autoColors: $('#autoColors'),
     voiceSel: $('#voiceSel'), voiceTest: $('#voiceTest'),
-    whipCursor: $('#whipCursor'),
+    whipCursor: $('#whipCursor'), dress: $('#dressBtn'), wardrobe: $('#wardrobe'),
     poseChips: $('#poseChips'), itemChips: $('#itemChips'), gearChips: $('#gearChips'),
     accBlind: $('#accBlind'), accGag: $('#accGag')
   };
@@ -81,6 +81,7 @@
     pose: 'stand',
     item: 'whip',
     gear: [],           // accesorios puestos
+    wardrobe: matchMedia('(min-width: 521px)').matches,  // en celular arranca cerrado
     name: '', count: 0, sound: true
   };
 
@@ -97,7 +98,7 @@
         src: state.src, det: state.det, adj: state.adj,
         skin: state.skin, skinEdge: state.skinEdge, hair: state.hair,
         skinPick: state.skinPick, hairPick: state.hairPick, voice: state.voice,
-        pose: state.pose, item: state.item, gear: state.gear,
+        pose: state.pose, item: state.item, gear: state.gear, wardrobe: state.wardrobe,
         name: state.name, count: state.count, sound: state.sound
       }));
     } catch (e) { /* sin espacio o modo privado: no pasa nada */ }
@@ -120,6 +121,7 @@
     state.pose = data.pose || 'stand';
     state.item = data.item || 'whip';
     state.gear = Array.isArray(data.gear) ? data.gear : [];
+    if (typeof data.wardrobe === 'boolean') state.wardrobe = data.wardrobe;
     el.name.value = state.name;
     paintCount();
     paintSound();
@@ -705,16 +707,28 @@
       // rango angosto a propósito: estirar mucho el pitch es lo que la hacía sonar a robot
       u.pitch = rand(1.05, 1.35);
       u.rate = rand(0.88, 1.02);
-      speechSynthesis.cancel();
+      // en iOS, cancel() seguido de speak() a veces se traga la locución;
+      // solo se cancela si de verdad hay algo sonando
+      if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
       speechSynthesis.speak(u);
+      if (speechSynthesis.paused) speechSynthesis.resume();
     } catch (e) { /* sin voz, no pasa nada */ }
   }
 
   let audio = null, noiseBuf = null;
   function ac() {
     audio = audio || new (window.AudioContext || window.webkitAudioContext)();
-    if (audio.state === 'suspended') audio.resume();
     return audio;
+  }
+
+  // En celular el AudioContext arranca suspendido y resume() es asíncrono. Si se
+  // programan los sonidos antes de que arranque, quedan agendados en un currentTime
+  // que ya pasó y no suenan nunca. Por eso se espera a que esté corriendo.
+  function withAudio(fn) {
+    let a;
+    try { a = ac(); } catch (e) { return; }
+    if (a.state === 'running') { try { fn(a); } catch (e) { /* nada */ } return; }
+    a.resume().then(() => { try { fn(a); } catch (e) { /* nada */ } }).catch(() => { /* nada */ });
   }
   function noise(a) {
     if (!noiseBuf) {
@@ -733,8 +747,8 @@
 
   function whipCrack() {
     if (!state.sound) return;
-    try {
-      const a = ac(), t0 = a.currentTime, buf = noise(a);
+    withAudio((a) => {
+      const t0 = a.currentTime, buf = noise(a);
       const tc = t0 + CRACK_AT;
 
       // silbido: corto, solo para anunciar el golpe
@@ -772,7 +786,7 @@
       g3.gain.exponentialRampToValueAtTime(0.0001, tc + 0.13);
       osc.connect(g3).connect(a.destination);
       osc.start(tc); osc.stop(tc + 0.16);
-    } catch (e) { /* sin audio, no pasa nada */ }
+    });
   }
 
   // Un gemido sintetizado con formantes, por debajo de la voz del navegador.
@@ -780,9 +794,9 @@
   // con vibrato pasado por tres pasa-banda que se abren de "mm" a "ah".
   function gasp() {
     if (!state.sound) return;
-    try {
+    withAudio((a) => {
       // arranca recién pasado el chasquido: si se pisan, no se oye ninguno de los dos
-      const a = ac(), t0 = a.currentTime + CRACK_AT + 0.06, dur = rand(0.26, 0.34);
+      const t0 = a.currentTime + CRACK_AT + 0.06, dur = rand(0.26, 0.34);
       const f0 = rand(196, 248);   // rango de voz femenina
 
       const osc = a.createOscillator();
@@ -826,7 +840,7 @@
 
       air.start(t0); osc.start(t0); lfo.start(t0);
       air.stop(t0 + dur + 0.05); osc.stop(t0 + dur + 0.05); lfo.stop(t0 + dur + 0.05);
-    } catch (e) { /* sin audio, no pasa nada */ }
+    });
   }
 
   /* ------------------------------------------------------------------- ui */
@@ -885,11 +899,23 @@
 
   /* -------------------------------------------------------------- eventos */
 
-  el.guy.addEventListener('click', (e) => {
-    crackWhip(e.clientX || null, e.clientY || null);
+  let lastHit = 0;
+  function hit(e) {
+    const now = Date.now();
+    if (now - lastHit < 350) return;      // pointerdown ya lo disparó, el click es el eco
+    lastHit = now;
+    const byPointer = e.clientX || e.clientY;
+    crackWhip(byPointer ? e.clientX : null, byPointer ? e.clientY : null);
     moan();
-  });
-  addEventListener('pointerdown', warmTTS, { once: true });
+  }
+  el.guy.addEventListener('pointerdown', hit);
+  el.guy.addEventListener('click', hit);   // teclado, y navegadores sin pointer events
+
+  // primer gesto: se despierta el motor de voz y se destraba el audio
+  addEventListener('pointerdown', () => {
+    warmTTS();
+    try { ac().resume(); } catch (e) { /* nada */ }
+  }, { once: true, capture: true });
 
   el.pick.addEventListener('click', () => el.file.click());
   el.file.addEventListener('change', (e) => useFile(e.target.files[0]));
@@ -915,6 +941,14 @@
   });
 
   el.reset.addEventListener('click', resetAll);
+
+  function openWardrobe(open) {
+    el.wardrobe.hidden = !open;
+    el.dress.setAttribute('aria-expanded', String(open));
+    state.wardrobe = open;
+    save();
+  }
+  el.dress.addEventListener('click', () => openWardrobe(el.wardrobe.hidden));
 
   el.skinCustom.addEventListener('input', () => setColour('skin', el.skinCustom.value));
   el.hairCustom.addEventListener('input', () => setColour('hair', el.hairCustom.value));
@@ -1082,6 +1116,8 @@
   buildSwatches();
   buildChips();
   paintLook();
+  el.wardrobe.hidden = !state.wardrobe;
+  el.dress.setAttribute('aria-expanded', String(state.wardrobe));
   restore();
 
   // en Chrome la lista de voces llega después de cargar la página

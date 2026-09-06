@@ -10,7 +10,7 @@
 <meta property="og:description" content="Put your friend's face on the doll and smack it. Don't ask.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23ffe000'/%3E%3Cpath d='M6 12 4 3l9 5zM26 12l2-9-9 5z' fill='%2314110f'/%3E%3Cellipse cx='16' cy='17' rx='9' ry='11' fill='%23eeb489' stroke='%2314110f' stroke-width='2'/%3E%3Cpath d='M10 15q3-3 5 0M17 15q3-3 5 0' stroke='%2314110f' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3Cellipse cx='16' cy='23' rx='3.5' ry='4.5' fill='%233d0a17'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
 
@@ -47,13 +47,10 @@
 
 <main class="main">
 
-  <div class="bubblewrap">
-    <div class="bubble" id="bubble" role="status" aria-live="polite"></div>
-  </div>
-
   <div class="stagewrap">
   <section class="stage" id="stage">
     <div class="sunburst" aria-hidden="true"></div>
+    <div class="bubble" id="bubble" role="status" aria-live="polite"></div>
 
     <!-- cartel de nombre flotante, estilo videojuego -->
     <div class="nametag" id="nametag">
@@ -650,11 +647,11 @@
     <input type="file" id="fileInput" accept="image/*" hidden>
     <button class="btn btn--main" id="pickBtn" type="button">📸 add a face</button>
     <button class="btn" id="nameBtn" type="button">✏️ name it</button>
-    <button class="btn" id="adjustBtn" type="button" aria-expanded="false">🎚️ adjust</button>
+    <button class="btn" id="dressBtn" type="button" aria-expanded="false">🎨 customize</button>
     <button class="btn" id="soundBtn" type="button" aria-pressed="true">🔊 sound</button>
-    <button class="btn btn--ghost" id="resetBtn" type="button">🗑️ clear</button>
   </div>
 
+  <section class="wardrobe" id="wardrobe" hidden>
   <div class="picker">
     <div class="picker__row">
       <span class="picker__label">POSE</span>
@@ -683,6 +680,12 @@
     </div>
     <button class="customizer__auto" id="autoColors" type="button">↺ take the colors from the photo</button>
   </div>
+
+  <div class="wardrobe__extra">
+    <button class="btn btn--ghost" id="adjustBtn" type="button" aria-expanded="false">🎚️ fix the face</button>
+    <button class="btn btn--ghost" id="resetBtn" type="button">🗑️ clear</button>
+  </div>
+  </section>
 
   <p class="status" id="status">drop a photo here, or paste one with Ctrl+V</p>
 
@@ -722,6 +725,6 @@
   <p class="foot__weird">hits: 0000<span id="hits">01</span> · last update: never · best viewed in 800x600</p>
 </footer>
 
-<script src="app.js" defer></script>
+<script src="app.js?v=5" defer></script>
 </body>
 </html>
