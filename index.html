@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>mydaddyfriend.lol</title>
+<meta name="description" content="Subí la foto de tu amigo, pegásela en la cara al muñeco, ponele un nombre y apretalo. Todo pasa dentro de tu navegador.">
+<meta name="theme-color" content="#ffe000">
+<meta property="og:title" content="mydaddyfriend.lol">
+<meta property="og:description" content="Ponele la cara de tu amigo al muñeco y apretalo. No preguntes.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23ffe000'/%3E%3Ccircle cx='16' cy='15' r='11' fill='%23ffeccc' stroke='%2314110f' stroke-width='2'/%3E%3Cpath d='M9 13q3-3 6 0M17 13q3-3 6 0' stroke='%2314110f' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3Cellipse cx='16' cy='21' rx='4' ry='5' fill='%233d0a17'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker__track">
+    <span>⚠️ ESTE SITIO NO TIENE NINGÚN PROPÓSITO ⚠️ TU FOTO NUNCA SALE DE TU NAVEGADOR ⚠️ HECHO CON AMOR Y CONFUSIÓN ⚠️ NO SE LO MUESTRES A TU MAMÁ ⚠️ 100% ARTESANAL ⚠️ </span>
+    <span>⚠️ ESTE SITIO NO TIENE NINGÚN PROPÓSITO ⚠️ TU FOTO NUNCA SALE DE TU NAVEGADOR ⚠️ HECHO CON AMOR Y CONFUSIÓN ⚠️ NO SE LO MUESTRES A TU MAMÁ ⚠️ 100% ARTESANAL ⚠️ </span>
+  </div>
+</div>
+
+<div class="floaters" id="floaters" aria-hidden="true"></div>
+
+<header class="top">
+  <div class="live"><i></i> EN VIVO</div>
+  <h1 class="logo">my<em>daddy</em>friend<b>.lol</b></h1>
+  <p class="tagline">poné la cara de tu amigo · ponele un nombre · apretalo</p>
+</header>
+
+<main class="main">
+
+  <div class="nameplate">
+    <span class="nameplate__pin">📌</span>
+    <input id="nameInput" class="nameplate__input" type="text" maxlength="20"
+           placeholder="NOMBRE DEL AMIGO" autocomplete="off" spellcheck="false"
+           aria-label="Nombre del muñeco">
+  </div>
+
+  <div class="bubblewrap">
+    <div class="bubble" id="bubble" role="status" aria-live="polite"></div>
+  </div>
+
+  <div class="stagewrap">
+  <section class="stage" id="stage">
+    <div class="sunburst" aria-hidden="true"></div>
+
+    <button class="guy" id="guy" type="button" aria-label="Apretar al muñeco">
+      <svg class="dude" viewBox="0 0 360 460" aria-hidden="true">
+        <ellipse class="dude__shadow" cx="180" cy="447" rx="100" ry="12"/>
+
+        <!-- piernas y brazos: capa de tinta -->
+        <g class="ink">
+          <path d="M156 336 C152 372 146 398 141 424"/>
+          <path d="M204 336 C208 372 214 398 219 424"/>
+          <path d="M120 250 C84 264 70 302 94 324"/>
+          <path d="M240 250 C276 264 290 302 266 324"/>
+        </g>
+        <!-- pies -->
+        <ellipse class="skin" cx="134" cy="428" rx="27" ry="14"/>
+        <ellipse class="skin" cx="226" cy="428" rx="27" ry="14"/>
+        <!-- piernas y brazos: relleno -->
+        <g class="limb">
+          <path d="M156 336 C152 372 146 398 141 424"/>
+          <path d="M204 336 C208 372 214 398 219 424"/>
+          <path d="M120 250 C84 264 70 302 94 324"/>
+          <path d="M240 250 C276 264 290 302 266 324"/>
+        </g>
+        <!-- manos -->
+        <circle class="skin" cx="94" cy="324" r="17"/>
+        <circle class="skin" cx="266" cy="324" r="17"/>
+
+        <!-- cuello -->
+        <rect class="skin" x="163" y="184" width="34" height="44" rx="12"/>
+
+        <!-- remera -->
+        <path class="shirt" d="M112 216 C102 268 106 316 120 346 C180 368 240 358 244 346 C258 316 258 268 248 216 C214 200 146 200 112 216 Z"/>
+        <path class="stitch" d="M124 336 q14 8 28 4 q14 -4 28 2 q14 6 28 -2 q14 -8 26 -2"/>
+        <text class="shirttext" x="181" y="292" text-anchor="middle" transform="rotate(-4 181 292)">DADDY</text>
+
+        <!-- orejas -->
+        <ellipse class="skin" cx="88" cy="128" rx="16" ry="24"/>
+        <ellipse class="skin" cx="272" cy="128" rx="16" ry="24"/>
+
+        <!-- antenas con ojos saltones -->
+        <path class="antenna" d="M150 38 C138 20 132 14 126 12"/>
+        <path class="antenna" d="M210 38 C222 20 228 14 234 12"/>
+        <g class="googly">
+          <circle class="googly__ball" cx="126" cy="14" r="14"/>
+          <circle class="googly__pupil" cx="126" cy="14" r="6"/>
+        </g>
+        <g class="googly googly--b">
+          <circle class="googly__ball" cx="234" cy="14" r="14"/>
+          <circle class="googly__pupil" cx="234" cy="14" r="6"/>
+        </g>
+
+        <!-- cabeza -->
+        <circle class="head-disc" cx="180" cy="120" r="92"/>
+      </svg>
+
+      <div class="head">
+        <div class="sticker">
+          <div class="face"><canvas id="faceCanvas" width="560" height="560"></canvas></div>
+          <div class="fx" id="fx" aria-hidden="true">
+            <div class="lid" id="eyeL">
+              <svg viewBox="0 0 100 70" preserveAspectRatio="none">
+                <defs>
+                  <radialGradient id="gEyeL"><stop offset=".68" class="s1"/><stop offset="1" class="s0"/></radialGradient>
+                  <radialGradient id="dEyeL" cx="50%" cy="26%" r="62%"><stop offset="0" class="d1"/><stop offset="1" class="d0"/></radialGradient>
+                </defs>
+                <ellipse cx="50" cy="35" rx="50" ry="35" fill="url(#gEyeL)"/>
+                <ellipse cx="50" cy="35" rx="50" ry="35" fill="url(#dEyeL)"/>
+                <path d="M18 45 Q50 15 82 45" fill="none" stroke="#2b141a" stroke-width="8" stroke-linecap="round"/>
+                <path d="M21 48 l-7 9M50 31 l0 12M79 48 l7 9" stroke="#2b141a" stroke-width="6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="lid" id="eyeR">
+              <svg viewBox="0 0 100 70" preserveAspectRatio="none">
+                <defs>
+                  <radialGradient id="gEyeR"><stop offset=".68" class="s1"/><stop offset="1" class="s0"/></radialGradient>
+                  <radialGradient id="dEyeR" cx="50%" cy="26%" r="62%"><stop offset="0" class="d1"/><stop offset="1" class="d0"/></radialGradient>
+                </defs>
+                <ellipse cx="50" cy="35" rx="50" ry="35" fill="url(#gEyeR)"/>
+                <ellipse cx="50" cy="35" rx="50" ry="35" fill="url(#dEyeR)"/>
+                <path d="M18 45 Q50 15 82 45" fill="none" stroke="#2b141a" stroke-width="8" stroke-linecap="round"/>
+                <path d="M21 48 l-7 9M50 31 l0 12M79 48 l7 9" stroke="#2b141a" stroke-width="6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="mouth" id="mouth">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                  <radialGradient id="gMouth"><stop offset=".72" class="s1"/><stop offset="1" class="s0"/></radialGradient>
+                </defs>
+                <ellipse cx="50" cy="50" rx="50" ry="50" fill="url(#gMouth)"/>
+                <ellipse cx="50" cy="52" rx="28" ry="36" fill="#3d0a17" stroke="#8a1b30" stroke-width="4"/>
+                <path d="M26 38 Q50 24 74 38 Q50 33 26 38 Z" fill="#fff" opacity=".9"/>
+                <ellipse cx="50" cy="76" rx="17" ry="12" fill="#ff5c8a"/>
+                <ellipse cx="41" cy="45" rx="6" ry="4" fill="#fff" opacity=".3"/>
+              </svg>
+            </div>
+            <div class="blush blush--l"></div>
+            <div class="blush blush--r"></div>
+            <div class="drop">💧</div>
+          </div>
+        </div>
+
+        <div class="head__empty" id="headEmpty">
+          <div class="head__ring"></div>
+          <div class="head__plus">＋</div>
+          <div class="head__hint">poné<br>una cara</div>
+        </div>
+      </div>
+    </button>
+
+    <div class="particles" id="particles" aria-hidden="true"></div>
+  </section>
+  </div>
+
+  <div class="counter"><span>GEMIDOS</span><b id="count">000000</b></div>
+
+  <div class="controls">
+    <input type="file" id="fileInput" accept="image/*" hidden>
+    <button class="btn btn--main" id="pickBtn" type="button">📸 poné una cara</button>
+    <button class="btn" id="adjustBtn" type="button" aria-expanded="false">🎚️ ajustar</button>
+    <button class="btn" id="soundBtn" type="button" aria-pressed="true">🔊 sonido</button>
+    <button class="btn btn--ghost" id="resetBtn" type="button">🗑️ borrar</button>
+  </div>
+
+  <p class="status" id="status">arrastrá una foto acá, o pegala con Ctrl+V</p>
+
+  <section class="panel" id="panel" hidden>
+    <div class="panel__bar">
+      <span>ajustes_raros.exe</span>
+      <button class="panel__x" id="panelX" type="button" aria-label="Cerrar ajustes">✕</button>
+    </div>
+    <div class="panel__body">
+      <p class="panel__note">si la cara quedó torcida, acomodala vos (se ve la expresión mientras ajustás)</p>
+      <div class="grid">
+        <label>zoom <input type="range" id="a_zoom" min="0.5" max="2.5" step="0.01" value="1"></label>
+        <label>izq / der <input type="range" id="a_dx" min="-0.4" max="0.4" step="0.005" value="0"></label>
+        <label>arriba / abajo <input type="range" id="a_dy" min="-0.4" max="0.4" step="0.005" value="0"></label>
+        <label>girar <input type="range" id="a_rot" min="-45" max="45" step="0.5" value="0"></label>
+        <label>altura ojos <input type="range" id="a_eyeY" min="-0.18" max="0.18" step="0.005" value="0"></label>
+        <label>separación ojos <input type="range" id="a_eyeGap" min="0.5" max="1.7" step="0.01" value="1"></label>
+        <label>altura boca <input type="range" id="a_mouthY" min="-0.2" max="0.2" step="0.005" value="0"></label>
+        <label>tamaño boca <input type="range" id="a_mouthS" min="0.5" max="1.9" step="0.01" value="1"></label>
+      </div>
+      <button class="btn btn--ghost" id="panelReset" type="button">↺ volver al automático</button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <p>tu foto <b>nunca</b> se sube a ningún lado. todo pasa dentro de tu navegador. ✌️</p>
+  <p class="foot__weird">visitas: 0000<span id="hits">01</span> · último update: nunca · best viewed in 800x600</p>
+</footer>
+
+<script src="app.js" defer></script>
+</body>
+</html>
