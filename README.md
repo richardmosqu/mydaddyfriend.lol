@@ -104,6 +104,7 @@ Turn on **Enforce HTTPS** in Settings → Pages once the certificate is issued.
 
 ```
 index.html            the page and the avatar (SVG in two layers, behind and in front of the face)
+privacy.html          the privacy policy
 styles.css            everything yellow, plus the face-shaped mask
 app.js                detection, cut-out, colours, expression, whip, money rain
 sounds/               the whip, the phrases and the song (see sounds/README.md)
@@ -115,6 +116,8 @@ down and it doesn't tell anyone you opened it. It's 1.3 MB, fetched in the backg
 only once the browser goes idle — not on page load.
 
 ## Privacy
+
+Full policy: [privacy.html](privacy.html). Short version below.
 
 The photo never leaves the device. There is no upload, no analytics, no cookies, no
 third-party requests of any kind — the page only ever fetches files from its own origin.

@@ -593,6 +593,42 @@ body.has-whip input,body.has-whip select,body.has-whip textarea{cursor:auto}
 .floaters span{position:absolute;opacity:.7;animation:drift linear infinite}
 @keyframes drift{from{transform:translateY(110vh) rotate(0)}to{transform:translateY(-20vh) rotate(360deg)}}
 
+/* ---------- páginas de texto (privacy) ---------- */
+.page{
+  max-width:44rem;margin:0 auto;padding:1.6rem 1.1rem 3rem;
+  position:relative;z-index:2;line-height:1.55;
+}
+.page__title{
+  margin:.2rem 0 .1rem;font-size:clamp(2rem,9vw,3rem);line-height:.95;color:#fff;
+  text-shadow:3px 3px 0 var(--ink),6px 6px 0 var(--pink);
+  transform:rotate(-1.5deg);
+}
+.page__date{margin:.9rem 0 1.4rem;font-family:ui-monospace,"Courier New",monospace;font-size:.75rem;opacity:.6}
+.page h2{
+  margin:2rem 0 .4rem;font-size:1.15rem;
+  border-bottom:3px solid var(--ink);display:inline-block;padding-bottom:.1rem;
+}
+.page p,.page li{font-size:.95rem}
+.page ul{padding-left:1.2rem;margin:.5rem 0}
+.page li{margin:.35rem 0}
+.page code,.page .mono{font-family:ui-monospace,"Courier New",monospace;font-size:.85em;background:rgba(0,0,0,.08);padding:.05em .3em;border-radius:3px}
+.page a{color:var(--ink);text-underline-offset:2px;text-decoration-thickness:2px}
+.page a:hover{color:var(--pink)}
+.page__box{
+  background:#fff;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);
+  padding:.7rem 1rem;margin:1.4rem 0;transform:rotate(-.4deg);
+}
+.page__box p{margin:.3rem 0}
+.page__box--big{transform:rotate(.5deg);box-shadow:6px 6px 0 var(--pink)}
+.page__back{margin-top:2.4rem;text-align:center}
+.page__back .foot__link{color:#fff}
+.page__back .foot__link:hover{color:#fff}
+
+@media (max-width:420px){
+  .page{padding:1.2rem .9rem 2.4rem}
+  .page h2{font-size:1.05rem}
+}
+
 /* ---------- footer ---------- */
 .foot{text-align:center;margin-top:1.6rem;padding:0 1rem;font-size:.8rem;color:#6b5f4c;position:relative;z-index:2}
 .foot p{margin:.25rem 0}
@@ -614,6 +650,10 @@ body.has-whip input,body.has-whip select,body.has-whip textarea{cursor:auto}
 .foot__link--gh:hover{transform:rotate(-1.2deg) translate(-1px,-1px)}
 .foot__link--x{background:#000;transform:rotate(1.2deg)}
 .foot__link--x:hover{transform:rotate(1.2deg) translate(-1px,-1px)}
+
+.foot__fine{font-size:.75rem;opacity:.8}
+.foot__fine a{color:inherit;text-underline-offset:2px;text-decoration-thickness:1px;text-decoration-color:rgba(107,95,76,.5)}
+.foot__fine a:hover{color:var(--pink);text-decoration-color:currentColor}
 
 .foot__weird{font-family:ui-monospace,"Courier New",monospace;font-size:.7rem;opacity:.65}
 
