@@ -59,7 +59,8 @@
     voiceSel: $('#voiceSel'), voiceTest: $('#voiceTest'),
     whipCursor: $('#whipCursor'), dress: $('#dressBtn'), wardrobe: $('#wardrobe'),
     money: $('#money'), rain: $('#rainBtn'),
-    poseChips: $('#poseChips'), itemChips: $('#itemChips'), gearChips: $('#gearChips'),
+    poseChips: $('#poseChips'), hairChips: $('#hairChips'),
+    itemChips: $('#itemChips'), gearChips: $('#gearChips'),
     accBlind: $('#accBlind'), accGag: $('#accGag')
   };
 
@@ -80,6 +81,7 @@
     hairPick: null,
     voice: '',          // voiceURI elegido a mano ('' = la que elige solo)
     pose: 'stand',
+    hairdo: 'long',
     item: 'whip',
     gear: [],           // accesorios puestos
     wardrobe: matchMedia('(min-width: 521px)').matches,  // en celular arranca cerrado
@@ -99,7 +101,7 @@
         src: state.src, det: state.det, adj: state.adj,
         skin: state.skin, skinEdge: state.skinEdge, hair: state.hair,
         skinPick: state.skinPick, hairPick: state.hairPick, voice: state.voice,
-        pose: state.pose, item: state.item, gear: state.gear, wardrobe: state.wardrobe,
+        pose: state.pose, hairdo: state.hairdo, item: state.item, gear: state.gear, wardrobe: state.wardrobe,
         name: state.name, count: state.count, sound: state.sound
       }));
     } catch (e) { /* sin espacio o modo privado: no pasa nada */ }
@@ -119,7 +121,8 @@
     state.skinPick = data.skinPick || null;
     state.hairPick = data.hairPick || null;
     state.voice = data.voice || '';
-    state.pose = data.pose || 'stand';
+    state.pose = POSES.some(p => p.id === data.pose) ? data.pose : 'stand';
+    state.hairdo = HAIRDOS.some(h => h.id === data.hairdo) ? data.hairdo : 'long';
     state.item = data.item || 'whip';
     state.gear = Array.isArray(data.gear) ? data.gear : [];
     if (typeof data.wardrobe === 'boolean') state.wardrobe = data.wardrobe;
@@ -1091,8 +1094,12 @@
   const POSES = [
     { id: 'stand', label: '🧍 stand' },
     { id: 'kneel', label: '🧎 kneel' },
-    { id: 'lying', label: '🛋 lie down' },
-    { id: 'back',  label: '🍑 from behind' }
+    { id: 'lying', label: '🛋 lie down' }
+  ];
+  const HAIRDOS = [
+    { id: 'long',  label: '💇 long' },
+    { id: 'short', label: '✂️ short' },
+    { id: 'none',  label: '🥚 bald' }
   ];
   const ITEMS = [
     { id: 'whip',    label: '🪢 whip' },
@@ -1121,6 +1128,7 @@
       return b;
     };
     for (const p of POSES) chip(el.poseChips, p.id, p.label, () => { state.pose = p.id; paintLook(); save(); });
+    for (const h of HAIRDOS) chip(el.hairChips, h.id, h.label, () => { state.hairdo = h.id; paintLook(); save(); });
     for (const i of ITEMS) chip(el.itemChips, i.id, i.label, () => { state.item = i.id; paintLook(); save(); });
     for (const g of GEAR) chip(el.gearChips, g.id, g.label, () => {
       const at = state.gear.indexOf(g.id);
@@ -1132,12 +1140,14 @@
 
   function paintLook() {
     el.stage.dataset.pose = state.pose;
+    el.stage.dataset.hair = state.hairdo;
     el.stage.dataset.item = state.item;
     for (const g of GEAR) el.stage.classList.toggle('gear-' + g.id, state.gear.includes(g.id));
     const mark = (host, on) => {
       for (const b of host.children) b.setAttribute('aria-pressed', String(on(b.dataset.id)));
     };
     mark(el.poseChips, id => id === state.pose);
+    mark(el.hairChips, id => id === state.hairdo);
     mark(el.itemChips, id => id === state.item);
     mark(el.gearChips, id => state.gear.includes(id));
   }
