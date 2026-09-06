@@ -590,6 +590,15 @@ body.has-whip input,body.has-whip select,body.has-whip textarea{cursor:auto}
 /* ---------- footer ---------- */
 .foot{text-align:center;margin-top:1.6rem;padding:0 1rem;font-size:.8rem;color:#6b5f4c;position:relative;z-index:2}
 .foot p{margin:.25rem 0}
+.foot__links{margin:.45rem 0 .25rem;font-size:.8rem;color:#6b5f4c}
+.foot__link{
+  color:inherit;opacity:.8;
+  text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:1px;
+  text-decoration-color:rgba(107,95,76,.45);
+}
+.foot__link:hover{color:var(--pink);opacity:1;text-decoration-color:currentColor}
+.foot__sep{opacity:.4;margin:0 .35rem}
+
 .foot__weird{font-family:ui-monospace,"Courier New",monospace;font-size:.7rem;opacity:.65}
 
 /* ---------- celular: menos aire y menos alto ---------- */
@@ -606,6 +615,7 @@ body.has-whip input,body.has-whip select,body.has-whip textarea{cursor:auto}
   .controls{gap:.4rem;margin:.6rem 0 .2rem}
   .counter{margin:.6rem 0 .1rem;font-size:.75rem}
   .foot{margin-top:1rem}
+  .foot__links{font-size:.75rem}
   .bubble{font-size:1rem;padding:.35rem .7rem .45rem;right:-4%;top:16%;max-width:72%}
 }
 
