@@ -681,18 +681,7 @@
     return autoVoice;
   }
 
-  // El motor de voz tarda bastante en arrancar la primera vez. Se lo despierta con
-  // una locución muda en el primer gesto del usuario, así el primer "daddy" no llega tarde.
-  let ttsWarm = false;
-  function warmTTS() {
-    if (ttsWarm || !('speechSynthesis' in window)) return;
-    ttsWarm = true;
-    try {
-      const u = new SpeechSynthesisUtterance(' ');
-      u.volume = 0;
-      speechSynthesis.speak(u);
-    } catch (e) { /* nada */ }
-  }
+  let speakStartedAt = 0;
 
   function speak(phrase) {
     if (!state.sound || !('speechSynthesis' in window)) return;
@@ -707,11 +696,19 @@
       // rango angosto a propósito: estirar mucho el pitch es lo que la hacía sonar a robot
       u.pitch = rand(1.05, 1.35);
       u.rate = rand(0.88, 1.02);
-      // en iOS, cancel() seguido de speak() a veces se traga la locución;
-      // solo se cancela si de verdad hay algo sonando
-      if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
-      speechSynthesis.speak(u);
+      // Nunca cancel() y speak() en el mismo tick: Chrome deja el motor colgado para
+      // el resto de la sesión y no vuelve a hablar. Si ya hay una frase sonando se la
+      // deja terminar; el latigazo y el gemido igual suenan en cada click.
+      if (speechSynthesis.speaking || speechSynthesis.pending) {
+        // válvula de escape por si el motor quedó trabado con una frase fantasma
+        if (Date.now() - speakStartedAt > 5000) {
+          try { speechSynthesis.cancel(); } catch (e) { /* nada */ }
+        }
+        return;
+      }
       if (speechSynthesis.paused) speechSynthesis.resume();
+      speakStartedAt = Date.now();
+      speechSynthesis.speak(u);
     } catch (e) { /* sin voz, no pasa nada */ }
   }
 
@@ -911,9 +908,8 @@
   el.guy.addEventListener('pointerdown', hit);
   el.guy.addEventListener('click', hit);   // teclado, y navegadores sin pointer events
 
-  // primer gesto: se despierta el motor de voz y se destraba el audio
+  // primer gesto: se destraba el audio
   addEventListener('pointerdown', () => {
-    warmTTS();
     try { ac().resume(); } catch (e) { /* nada */ }
   }, { once: true, capture: true });
 
